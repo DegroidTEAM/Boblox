@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Роблокс Мини Игры</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            background: #1a1a2e; 
+            overflow: hidden; 
+            font-family: 'Segoe UI', 'Arial', sans-serif; 
+            user-select: none;
+            touch-action: none;
+        }
+        #gameCanvas { display: block; }
+
+        /* Кнопка Музыки */
+        #musicBtn {
+            position: absolute; top: 15px; left: 15px;
+            background: rgba(0,0,0,0.6); color: white; border: 2px solid white;
+            border-radius: 50%; width: 50px; height: 50px;
+            font-size: 24px; font-weight: bold; z-index: 15;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Главное меню */
+        #menu {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at top right, #4a00e0, #8e2de2, #00c6ff);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 10; padding: 20px;
+        }
+        .title {
+            color: white; font-size: 48px; font-weight: 900;
+            margin-bottom: 40px; text-align: center;
+            text-transform: uppercase; letter-spacing: 2px;
+            text-shadow: 4px 4px 0px rgba(0,0,0,0.4);
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .btn-container {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 15px; width: 100%; max-width: 500px;
+        }
+        .game-btn {
+            background: white; border: none; border-radius: 25px;
+            padding: 20px 10px; text-align: center;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.3);
+            transition: transform 0.1s; display: flex;
+            flex-direction: column; align-items: center;
+            position: relative; overflow: hidden;
+        }
+        .game-btn:active { transform: translateY(6px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+        .btn-icon { font-size: 45px; margin-bottom: 10px; filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.2)); }
+        .btn-text { color: #2c3e50; font-weight: 800; font-size: 14px; text-transform: uppercase; }
+
+        /* Кнопка выхода */
+        #exitBtn {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(231, 76, 60,0.9); color: white; border: 2px solid white;
+            border-radius: 50%; width: 50px; height: 50px;
+            font-size: 24px; font-weight: bold; z-index: 5;
+            display: none; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Сообщения на экране */
+        #msgBox {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white; color: #2c3e50;
+            padding: 40px 50px; border-radius: 30px;
+            text-align: center; z-index: 20; display: none;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 5px solid #8e2de2;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #msgBox.show { transform: translate(-50%, -50%) scale(1); }
+        #msgBox h1 { font-size: 36px; margin-bottom: 25px; font-weight: 900; }
+        #msgBox button { 
+            background: #8e2de2; color: white; border: none;
+            padding: 15px 35px; font-size: 20px; border-radius: 15px;
+            font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 0 #6a1b9a;
+        }
+        #msgBox button:active { transform: translateY(2px); box-shadow: 0 2px 0 #6a1b9a; }
+    </style>
+</head>
+<body>
+
+    <button id="musicBtn" onclick="toggleMusic()">🎵</button>
+    <div id="menu">
+        <div class="title">🎮 ИГРЫ</div>
+        <div class="btn-container">
+            <button class="game-btn" onclick="startGame(1)">
+                <div class="btn-icon">🏠</div><div class="btn-text">Дом от Хагги</div>
+            </button>
+            <button class="game-btn" onclick="startGame(2)">
+                <div class="btn-icon">🏃</div><div class="btn-text">Убеги от монстра</div>
+            </button>
+            <button class="game-btn" onclick="startGame(3)">
+                <div class="btn-icon">🙈</div><div class="btn-text">Прятки Хагги</div>
+            </button>
+            <button class="game-btn" onclick="startGame(4)">
+                <div class="btn-icon">🏥</div><div class="btn-text">Больница</div>
+            </button>
+            <button class="game-btn" onclick="startGame(5)" style="grid-column: span 2;">
+                <div class="btn-icon">🍔🚽</div><div class="btn-text">Вкусно или Туалет</div>
+            </button>
+        </div>
+    </div>
+
+    <button id="exitBtn" onclick="exitGame()">✖</button>
+    <canvas id="gameCanvas"></canvas>
+    <div id="msgBox"><h1 id="msgText"></h1><button onclick="exitGame()">В МЕНЮ</button></div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const menu = document.getElementById('menu');
+        const exitBtn = document.getElementById('exitBtn');
+        const msgBox = document.getElementById('msgBox');
+        const msgText = document.getElementById('msgText');
+        const musicBtn = document.getElementById('musicBtn');
+
+        let W, H, currentGame = null, timer = 0;
+        let player = { x: 0, y: 0, size: 50, speed: 5, moving: false, legSwing: 0 };
+
+        // --- СИНТЕЗАТОР МУЗЫКИ ---
+        let audioCtx = null, musicOn = false, musicInterval = null;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        function playNote(freq, duration, type = 'square', volume = 0.1) {
+            if (!audioCtx || !musicOn) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+        
+        // Веселая 8-битная мелодия
+        const melody = [
+            [523, 0.2], [659, 0.2], [784, 0.2], [1046, 0.4], 
+            [784, 0.2], [1046, 0.4], [784, 0.2], [659, 0.2],
+            [523, 0.2], [659, 0.2], [784, 0.2], [1046, 0.4],
+            [988, 0.2], [784, 0.2], [659, 0.4]
+        ];
+        let noteIndex = 0;
+        
+        function toggleMusic() {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            musicOn = !musicOn;
+            musicBtn.innerHTML = musicOn ? "🔊" : "🔇";
+            musicBtn.style.background = musicOn ? "rgba(46, 204, 113,0.9)" : "rgba(0,0,0,0.6)";
+            
+            if (musicOn) {
+                if(musicInterval) clearInterval(musicInterval);
+                musicInterval = setInterval(() => {
+                    let note = melody[noteIndex % melody.length];
+                    playNote(note[0], note[1], 'square', 0.08);
+                    // Бас
+                    if (noteIndex % 2 === 0) playNote(note[0] / 4, note[1] * 1.5, 'triangle', 0.1);
+                    noteIndex++;
+                }, 250);
+            } else {
+                clearInterval(musicInterval);
+            }
+        }
+
+        // --- SVG КАРТИНКИ ---
+        const huggySVG = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="120" viewBox="0 0 100 120">
+            <rect x="10" y="30" width="80" height="80" rx="15" fill="#2a36b1" />
+            <rect x="10" y="100" width="80" height="20" fill="#1a237e" />
+            <circle cx="35" cy="40" r="15" fill="white" />
+            <circle cx="65" cy="40" r="15" fill="white" />
+            <circle cx="35" cy="42" r="6" fill="black" />
+            <circle cx="65" cy="42" r="6" fill="black" />
+            <path d="M25 75 Q50 110 75 75 Q50 95 25 75" fill="#d50000" />
+            <path d="M25 75 Q50 110 75 75 Z" stroke="white" stroke-width="2" fill="none"/>
+        </svg>`;
+        const huggyImg = new Image();
+        huggyImg.src = 'data:image/svg+xml;charset=utf8,' + encodeURIComponent(huggySVG);
+
+        function resize() {
+            W = window.innerWidth; H = window.innerHeight;
+            canvas.width = W; canvas.height = H;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'ru-RU'; u.rate = 1.1;
+                window.speechSynthesis.speak(u);
+            }
+        }
+
+        let touchX = null, touchY = null;
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            let t = e.touches[0];
+            touchX = t.clientX; touchY = t.clientY;
+        }, {passive: false});
+        
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            let t = e.touches[0];
+            touchX = t.clientX; touchY = t.clientY;
+        }, {passive: false});
+        
+        canvas.addEventListener('touchend', (e) => {
+            touchX = null; touchY = null;
+        });
+
+        canvas.addEventListener('mousedown', (e) => { touchX = e.clientX; touchY = e.clientY; });
+        canvas.addEventListener('mouseup', () => { touchX = null; touchY = null; });
+        canvas.addEventListener('mousemove', (e) => { if(touchX!==null){touchX = e.clientX; touchY = e.clientY;} });
+
+        function startGame(mode) {
+            currentGame = mode;
+            menu.style.display = 'none';
+            exitBtn.style.display = 'flex';
+            timer = 0;
+            player.x = W/2; player.y = H/2;
+            msgBox.classList.remove('show');
+            msgBox.style.display = 'none';
+
+            if (mode === 1) { speak("Строй дом от Хагги Вагги!"); blocks = []; monster = null; }
+            if (mode === 2) { speak("Беги от монстра!"); chaser = { x: 100, y: H/2 }; }
+            if (mode === 3) { 
+                speak("Прятки от Хагги Вагги. Прячься за коробки!"); 
+                player.y = H - 100;
+                huggy.looking = false; huggyTimer = 0;
+                boxes3 = [];
+                for(let i=0; i<5; i++) {
+                    boxes3.push({ x: 100 + Math.random() * (W-200), y: 200 + Math.random() * (H-400) });
+                }
+            }
+            if (mode === 4) { speak("Лечи животных. Нажимай на них!"); animals = []; }
+            if (mode === 5) { speak("Лови вкусное. Не лови гадость!"); foods = []; }
+            
+            if (!musicOn) toggleMusic(); // Авто-включение музыки при старте
+        }
+
+        function exitGame() {
+            currentGame = null;
+            menu.style.display = 'flex';
+            exitBtn.style.display = 'none';
+            msgBox.classList.remove('show');
+            msgBox.style.display = 'none';
+            window.speechSynthesis.cancel();
+            if (musicOn) toggleMusic(); // Выключить музыку в меню
+        }
+
+        function showMsg(text) {
+            msgText.innerHTML = text;
+            msgBox.style.display = 'block';
+            setTimeout(() => msgBox.classList.add('show'), 10);
+            speak(text.replace(/<br>/g, ' '));
+            exitBtn.style.display = 'none';
+            currentGame = null;
+            if (musicOn) toggleMusic(); // Остановить музыку
+        }
+
+        function loop() {
+            if (currentGame !== null) {
+                update();
+                draw();
+            }
+            requestAnimationFrame(loop);
+        }
+
+        function update() {
+            timer++;
+            player.legSwing = (player.legSwing + 0.2) % (Math.PI * 2);
+            
+            if (touchX !== null) {
+                player.moving = true;
+                let dx = touchX - player.x;
+                let dy = touchY - player.y;
+                let dist = Math.hypot(dx, dy);
+                if (dist > player.speed) {
+                    player.x += (dx/dist) * player.speed;
+                    player.y += (dy/dist) * player.speed;
+                }
+            } else {
+                player.moving = false;
+            }
+
+            if (currentGame === 1) updateMode1();
+            if (currentGame === 2) updateMode2();
+            if (currentGame === 3) updateMode3();
+            if (currentGame === 4) updateMode4();
+            if (currentGame === 5) updateMode5();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+            if (currentGame === 1) drawMode1();
+            if (currentGame === 2) drawMode2();
+            if (currentGame === 3) drawMode3();
+            if (currentGame === 4) drawMode4();
+            if (currentGame === 5) drawMode5();
+            drawPlayer();
+        }
+
+        function drawPlayer() {
+            // Тень
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.beginPath();
+            ctx.ellipse(player.x, player.y + 25, 20, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Тело (с покачиванием)
+            ctx.save();
+            ctx.translate(player.x, player.y);
+            if (player.moving) {
+                ctx.rotate(Math.sin(player.legSwing) * 0.1);
+            }
+            
+            // Ноги
+            ctx.fillStyle = '#3498db';
+            ctx.fillRect(-15, 10, 12, 20 + (player.moving ? Math.sin(player.legSwing)*5 : 0));
+            ctx.fillRect(3, 10, 12, 20 - (player.moving ? Math.sin(player.legSwing)*5 : 0));
+            
+            // Туловище
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillRect(-20, -15, 40, 35);
+            ctx.fillStyle = '#c0392b';
+            ctx.fillRect(-20, 10, 40, 10); // Пояс
+            
+            // Руки
+            ctx.fillStyle = '#f1c27f';
+            ctx.fillRect(-25, -10, 5, 15);
+            ctx.fillRect(20, -10, 5, 15);
+            
+            // Голова
+            ctx.fillStyle = '#f1c27f';
+            ctx.beginPath();
+            ctx.arc(0, -25, 18, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Глаза
+            ctx.fillStyle = 'white';
+            ctx.beginPath(); ctx.arc(-6, -28, 5, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(6, -28, 5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'black';
+            ctx.beginPath(); ctx.arc(-6, -28, 2, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(6, -28, 2, 0, Math.PI * 2); ctx.fill();
+            
+            // Улыбка
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, -20, 8, 0, Math.PI);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+
+        // --- РЕЖИМ 1: Дом от Хагги ---
+        let blocks = [];
+        let monster = null;
+        function updateMode1() {
+            if (timer === 1) speak("Строй стены!");
+            if (timer > 600 && !monster) {
+                monster = { x: -100, y: H/2, size: 100 };
+                speak("Хагги Вагги идет!");
+            }
+            if (monster) {
+                let blocked = false;
+                blocks.forEach(b => {
+                    if (monster.x > b.x - 50 && monster.x < b.x + 50 && monster.y > b.y - 40 && monster.y < b.y + 40) {
+                        b.health -= 1;
+                        blocked = true;
+                        if (b.health <= 0) blocks.splice(blocks.indexOf(b), 1);
+                    }
+                });
+                if(!blocked) monster.x += 1.5;
+                
+                if (monster.x > W + 100) showMsg('🎉 Ты победил!<br>Хагги не достал тебя!');
+                if (Math.hypot(monster.x - player.x, monster.y - player.y) < 60) showMsg('💀 Проиграл!<br>Хагги съел тебя!');
+            }
+            
+            if (touchX !== null && timer % 10 === 0) {
+                blocks.push({x: touchX, y: touchY, health: 3});
+            }
+        }
+        function drawMode1() {
+            // Детализированный фон
+            let grad = ctx.createLinearGradient(0, 0, 0, H);
+            grad.addColorStop(0, '#87CEEB');
+            grad.addColorStop(0.7, '#87CEEB');
+            grad.addColorStop(0.7, '#2ecc71');
+            grad.addColorStop(1, '#27ae60');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0,0,W,H);
+            
+            // Облака
+            ctx.fillStyle = 'white';
+            ctx.beginPath(); ctx.arc(W*0.2, 100, 30, 0, Math.PI*2); ctx.arc(W*0.2+30, 100, 40, 0, Math.PI*2); ctx.arc(W*0.2+60, 100, 30, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(W*0.8, 150, 30, 0, Math.PI*2); ctx.arc(W*0.8+30, 150, 40, 0, Math.PI*2); ctx.arc(W*0.8+60, 150, 30, 0, Math.PI*2); ctx.fill();
+            
+            // Предпросмотр кирпича
+            if(touchX !== null) {
+                ctx.globalAlpha = 0.5;
+                ctx.fillStyle = '#e67e22';
+                ctx.fillRect(touchX-20, touchY-15, 40, 30);
+                ctx.globalAlpha = 1;
+            }
+            
+            // Кирпичи с тенями
+            blocks.forEach(b => {
+                ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                ctx.fillRect(b.x-18, b.y-13, 40, 30);
+                ctx.fillStyle = '#e67e22';
+                ctx.fillRect(b.x-20, b.y-15, 40, 30);
+                ctx.strokeStyle = '#d35400';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(b.x-20, b.y-15, 40, 30);
+            });
+            
+            if (monster) {
+                ctx.drawImage(huggyImg, monster.x - 50, monster.y - 60, 100, 120);
+            }
+        }
+
+        // --- РЕЖИМ 2: Убеги ---
+        let chaser = { x: 100, y: H/2 };
+        function updateMode2() {
+            if (timer === 1) speak("Беги!");
+            chaser.x += (player.x - chaser.x) * 0.02;
+            chaser.y += (player.y - chaser.y) * 0.02;
+            if (timer > 3600) showMsg('🎉 Ты убежал!<br>Ничего не получил!');
+            if (Math.hypot(chaser.x - player.x, chaser.y - player.y) < 50) showMsg('💀 Ты проиграл!');
+        }
+        function drawMode2() {
+            // Асфальт
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(0,0,W,H);
+            // Разметка
+            ctx.strokeStyle = '#f1c40f';
+            ctx.lineWidth = 5;
+            ctx.setLineDash([30, 20]);
+            ctx.beginPath();
+            ctx.moveTo(W/2, 0);
+            ctx.lineTo(W/2, H);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Тень монстра
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(chaser.x, chaser.y + 30, 30, 10, 0, 0, Math.PI*2);
+            ctx.fill();
+            
+            ctx.font = '60px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('👻', chaser.x, chaser.y);
+        }
+
+        // --- РЕЖИМ 3: Прятки ---
+        let huggy = { looking: false, x: 0, y: 0 };
+        let huggyTimer = 0;
+        let boxes3 = [];
+        function updateMode3() {
+            if(player.y < 100) {
+                showMsg('🎉 Ты сбежал<br>от Хагги!');
+                return;
+            }
+            huggyTimer++;
+            if (huggyTimer > 150) {
+                huggy.looking = !huggy.looking;
+                huggyTimer = 0;
+                if(huggy.looking) speak("Хагги смотрит! Прячься!");
+                else speak("Иди!");
+            }
+            if (huggy.looking) {
+                let isHidden = false;
+                for(let b of boxes3) {
+                    if (Math.hypot(b.x - player.x, b.y - player.y) < 60) {
+                        isHidden = true; break;
+                    }
+                }
+                if (!isHidden) showMsg('💀 Хагги Вагги<br>тебя увидел!');
+            }
+        }
+        function drawMode3() {
+            // Темный фон склада
+            ctx.fillStyle = huggy.looking ? '#4a0000' : '#2c3e50';
+            ctx.fillRect(0,0,W,H);
+            
+            // Свет от Хагги
+            if(huggy.looking) {
+                let grad = ctx.createRadialGradient(W/2, 0, 0, W/2, 0, H);
+                grad.addColorStop(0, 'rgba(255,0,0,0.4)');
+                grad.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0,0,W,H);
+            }
+            
+            // Коробки с тенями
+            ctx.font = '60px Arial';
+            ctx.textAlign = 'center';
+            boxes3.forEach(b => {
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath(); ctx.arc(b.x, b.y + 25, 30, 0, Math.PI*2); ctx.fill();
+                ctx.fillText('📦', b.x, b.y);
+            });
+            
+            // Хагги
+            ctx.drawImage(huggyImg, W/2 - 50, -20, 100, 120);
+        }
+
+        // --- РЕЖИМ 4: Больница ---
+        let animals = [];
+        const animalTypes = ['🐶', '🐱', '🐰', '🐹', '🐻'];
+        function updateMode4() {
+            if (timer === 1) speak("Лечи животных. Нажимай на них!");
+            if (timer % 100 === 0 && animals.length < 5) {
+                animals.push({
+                    x: 100 + Math.random() * (W-200),
+                    y: 200 + Math.random() * (H-250),
+                    sick: true,
+                    type: animalTypes[Math.floor(Math.random() * animalTypes.length)]
+                });
+            }
+            animals.forEach(a => {
+                if (a.sick && touchX !== null && Math.hypot(touchX - a.x, touchY - a.y) < 50) {
+                    a.sick = false;
+                    speak("Молодец! Животное здорово!");
+                    setTimeout(() => {
+                        const idx = animals.indexOf(a);
+                        if(idx > -1) animals.splice(idx, 1);
+                    }, 2000);
+                }
+            });
+        }
+        function drawMode4() {
+            // Стены больницы
+            ctx.fillStyle = '#ecf0f1';
+            ctx.fillRect(0,0,W,H);
+            // Плинтус
+            ctx.fillStyle = '#bdc3c7';
+            ctx.fillRect(0, H-50, W, 50);
+            // Крестики на стене
+            ctx.fillStyle = '#e74c3c';
+            ctx.font = '40px Arial';
+            for(let i=0; i<5; i++) {
+                ctx.fillText('✚', 100 + i*(W/5), 100);
+            }
+            
+            animals.forEach(a => {
+                // Тень
+                ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                ctx.beginPath();
+                ctx.ellipse(a.x, a.y + 25, 25, 10, 0, 0, Math.PI*2);
+                ctx.fill();
+                
+                ctx.font = '50px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(a.type, a.x, a.y);
+                
+                if(a.sick) {
+                    ctx.font = '30px Arial';
+                    ctx.fillText('🤢', a.x + 30, a.y - 20);
+                } else {
+                    ctx.font = '30px Arial';
+                    ctx.fillText('❤️', a.x + 30, a.y - 20);
+                }
+            });
+        }
+
+        // --- РЕЖИМ 5: Еда ---
+        let foods = [];
+        function updateMode5() {
+            if (timer === 1) speak("Лови вкусное. Не лови гадость!");
+            if (timer % 40 === 0) {
+                foods.push({ x: Math.random() * W, y: -50, type: Math.random() > 0.5 ? 'good' : 'bad' });
+            }
+            foods.forEach(f => {
+                f.y += 5;
+                if (Math.hypot(f.x - player.x, f.y - player.y) < 40) {
+                    if (f.type === 'bad') showMsg('🤢 Фу! Надо в туалет!');
+                    else speak("Вкусно!");
+                    foods.splice(foods.indexOf(f), 1);
+                }
+                if (f.y > H) foods.splice(foods.indexOf(f), 1);
+            });
+        }
+        function drawMode5() {
+            // Праздничный фон
+            let grad = ctx.createLinearGradient(0,0,0,H);
+            grad.addColorStop(0, '#ff9a9e');
+            grad.addColorStop(1, '#fecfef');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0,0,W,H);
+            
+            foods.forEach(f => {
+                ctx.font = '40px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(f.type === 'good' ? '🍕' : '🤢', f.x, f.y);
+            });
+        }
+
+        loop();
+    </script>
+</body>
+</html>
