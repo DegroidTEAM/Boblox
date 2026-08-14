@@ -52,7 +52,7 @@
     
     <div id="menu" class="screen">
         <div class="title">🎮 ИГРЫ</div>
-        <button class="game-btn mp-btn" onclick="showLobby()">
+        <button class="game-btn mp-btn" onclick="unlockMedia(); showLobby()">
             <div class="btn-icon">👥</div><div class="btn-text">ИГРАТЬ С ДРУГОМ</div>
         </button>
         <div class="btn-container">
@@ -132,10 +132,18 @@
             config: {
                 'iceServers': [
                     { url: 'stun:stun.l.google.com:19302' },
-                    { url: 'stun:stun1.l.google.com:19302' }
+                    { url: 'stun:stun1.l.google.com:19302' },
+                    { url: 'stun:global.stun.twilio.com:3478' }
                 ]
-            }
+            },
+            debug: 2 // Включаем логи для поиска ошибок
         };
+
+        function unlockMedia() {
+            // Разблокировка звука и сети при первом клике
+            initAudio();
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        }
 
         function showLobby() {
             menu.classList.add('hidden');
@@ -161,38 +169,42 @@
             document.getElementById('roomCodeDisplay').innerText = "....";
             document.getElementById('mpStatus').innerText = "Подключение к сети...";
             
-            peer = new Peer('robloxmini-' + roomCode, peerConfig);
-            
-            // ПОКА НЕ ПОДКЛЮЧИЛИСЬ К СЕРВЕРУ - КОД НЕ ПОКАЗЫВАЕМ
-            peer.on('open', (id) => {
-                document.getElementById('roomCodeDisplay').innerText = roomCode;
-                document.getElementById('mpStatus').innerText = 'Ждем друга...';
-                speak("Скажи другу код: " + roomCode);
-            });
-            
-            peer.on('connection', (c) => {
-                conn = c;
-                conn.on('open', () => {
-                    netConnected = true;
-                    document.getElementById('mpStatus').innerText = 'Друг подключился! Выбираю игру...';
-                    speak("Друг подключился! Выбираю игру.");
-                    setTimeout(() => {
-                        mpLobby.classList.add('hidden');
-                        menu.classList.remove('hidden');
-                    }, 1500);
+            try {
+                peer = new Peer('robloxmini-' + roomCode, peerConfig);
+                
+                peer.on('open', (id) => {
+                    document.getElementById('roomCodeDisplay').innerText = roomCode;
+                    document.getElementById('mpStatus').innerText = 'Ждем друга...';
+                    speak("Скажи другу код: " + roomCode);
                 });
-                conn.on('data', (data) => handleData(data));
-                conn.on('close', () => { alert('Друг вышел!'); exitGame(); netConnected = false; });
-            });
-            peer.on('error', (err) => { 
-                console.error(err); 
-                if(err.type === 'unavailable-id') {
-                    alert("Ошибка: Комната с таким кодом уже есть. Попробуй еще раз.");
-                } else {
-                    alert("Ошибка сети. Скорее всего, браузер блокирует соединение. Открой игру через сайт с https или в APK.");
-                }
-                cancelLobby(); 
-            });
+                
+                peer.on('connection', (c) => {
+                    conn = c;
+                    conn.on('open', () => {
+                        netConnected = true;
+                        document.getElementById('mpStatus').innerText = 'Друг подключился! Выбираю игру...';
+                        speak("Друг подключился! Выбираю игру.");
+                        setTimeout(() => {
+                            mpLobby.classList.add('hidden');
+                            menu.classList.remove('hidden');
+                        }, 1500);
+                    });
+                    conn.on('data', (data) => handleData(data));
+                    conn.on('close', () => { alert('Друг вышел!'); exitGame(); netConnected = false; });
+                });
+                peer.on('error', (err) => { 
+                    console.error("Peer Error:", err); 
+                    let errMsg = "Ошибка сети.";
+                    if(err.type === 'unavailable-id') errMsg = "Комната с таким кодом уже есть. Попробуйте еще раз.";
+                    else if(err.type === 'network' || err.type === 'server-error') errMsg = "Браузер блокирует сеть. Отключи AdBlock или открой в режиме Инкогнито.";
+                    else if(err.type === 'browser-incompatible') errMsg = "Этот браузер не поддерживает онлайн. Попробуй Chrome.";
+                    alert(errMsg + " (Тип ошибки: " + err.type + ")");
+                    cancelLobby(); 
+                });
+            } catch(e) {
+                alert("Критическая ошибка: " + e.message);
+                cancelLobby();
+            }
         }
 
         function typeCode(val) {
@@ -208,25 +220,33 @@
             isHost = false;
             speak("Подключаемся к другу...");
             
-            peer = new Peer(peerConfig);
-            peer.on('open', (id) => {
-                conn = peer.connect('robloxmini-' + code, {reliable: true});
-                conn.on('open', () => {
-                    netConnected = true;
-                    mpLobby.classList.add('hidden');
-                    speak("Успешно! Ждем выбора игры.");
+            try {
+                peer = new Peer(peerConfig);
+                peer.on('open', (id) => {
+                    conn = peer.connect('robloxmini-' + code, {reliable: true});
+                    conn.on('open', () => {
+                        netConnected = true;
+                        mpLobby.classList.add('hidden');
+                        speak("Успешно! Ждем выбора игры.");
+                    });
+                    conn.on('data', (data) => handleData(data));
+                    conn.on('close', () => { alert('Хост закрыл игру!'); exitGame(); netConnected = false; });
+                    // Таймаут, если не подключилось
+                    setTimeout(() => {
+                        if(!netConnected) alert("Не удалось подключиться. Проверь код или попроси друга создать игру заново.");
+                    }, 5000);
                 });
-                conn.on('data', (data) => handleData(data));
-                conn.on('close', () => { alert('Хост закрыл игру!'); exitGame(); netConnected = false; });
-            });
-            peer.on('error', (err) => { 
-                console.error(err); 
-                if(err.type === 'peer-unavailable') {
-                    alert("Игры с таким кодом нет. Проверь код или попроси друга создать игру заново.");
-                } else {
-                    alert("Ошибка сети. Браузер блокирует соединение.");
-                }
-            });
+                peer.on('error', (err) => { 
+                    console.error("Peer Error:", err);
+                    let errMsg = "Ошибка сети.";
+                    if(err.type === 'peer-unavailable') errMsg = "Игры с таким кодом нет. Проверь код или попроси друга создать игру заново.";
+                    else if(err.type === 'network' || err.type === 'server-error') errMsg = "Браузер блокирует сеть. Отключи AdBlock или открой в режиме Инкогнито.";
+                    else if(err.type === 'browser-incompatible') errMsg = "Этот браузер не поддерживает онлайн. Попробуй Chrome.";
+                    alert(errMsg + " (Тип ошибки: " + err.type + ")");
+                });
+            } catch(e) {
+                alert("Критическая ошибка: " + e.message);
+            }
         }
 
         function handleData(data) {
@@ -301,7 +321,7 @@
         }
         function toggleMusic() {
             initAudio();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             musicOn = !musicOn;
             musicBtn.innerHTML = musicOn ? "🔊" : "🔇";
             musicBtn.style.background = musicOn ? "rgba(46, 204, 113,0.9)" : "rgba(0,0,0,0.6)";
