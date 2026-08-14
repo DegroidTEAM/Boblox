@@ -3,102 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Роблокс Мини Игры</title>
+    <title>Roblox Mini Games</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: #1a1a2e; overflow: hidden; font-family: 'Segoe UI', 'Arial', sans-serif; user-select: none; touch-action: none; }
         #gameCanvas { display: block; width: 100vw; height: 100vh; }
 
-        #menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at top, #4a00e0, #8e2de2, #00c6ff); display: flex; flex-direction: column; justify-content: flex-start; align-items: center; z-index: 10; padding: 20px; overflow-y: auto; }
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; z-index: 10; padding: 20px; overflow-y: auto; }
+        .hidden { display: none !important; }
         .title { color: white; font-size: 34px; font-weight: 900; margin-top: 20px; margin-bottom: 15px; text-shadow: 3px 3px 0 rgba(0,0,0,0.4); text-align: center; }
         .btn-container { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 400px; padding-bottom: 40px; }
         .game-btn { background: white; border: none; border-radius: 20px; padding: 15px; text-align: left; box-shadow: 0 6px 0 rgba(0,0,0,0.3); transition: transform 0.1s; display: flex; align-items: center; cursor: pointer; }
         .game-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
         .btn-icon { font-size: 40px; margin-right: 15px; }
         .btn-text { color: #2c3e50; font-weight: 800; font-size: 18px; }
+
+        #langScreen { background: radial-gradient(circle at top, #4a00e0, #8e2de2, #00c6ff); justify-content: center; }
+        .lang-btn { background: white; border: none; border-radius: 20px; padding: 20px; margin: 10px; width: 80%; max-width: 300px; font-size: 24px; font-weight: bold; box-shadow: 0 6px 0 rgba(0,0,0,0.3); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .lang-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+
+        #menu { background: radial-gradient(circle at top, #4a00e0, #8e2de2, #00c6ff); }
         
-        #exitBtn { position: absolute; top: 15px; right: 15px; background: rgba(231, 76, 60,0.9); color: white; border: 2px solid white; border-radius: 50%; width: 45px; height: 45px; font-size: 22px; z-index: 15; display: none; align-items: center; justify-content: center; }
+        .toggle { display: flex; background: white; border-radius: 20px; padding: 5px; margin-bottom: 10px; justify-content: center; }
+        .tb { padding: 10px 20px; font-size: 18px; font-weight: 700; color: #2c3e50; background: none; border: none; border-radius: 15px; cursor: pointer; }
+        .ta { background: #8e2de2; color: white !important; }
+
+        #exitBtn { position: absolute; top: 15px; right: 15px; background: rgba(231, 76, 60,0.9); color: white; border: 2px solid white; border-radius: 50%; width: 45px; height: 45px; font-size: 22px; z-index: 15; display: none; align-items: center; justify-content: center; cursor: pointer; }
+        #musicBtn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); color: white; border: 2px solid white; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; z-index: 15; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        #langBtn { position: absolute; top: 15px; left: 70px; background: rgba(0,0,0,0.6); color: white; border: 2px solid white; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; z-index: 15; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        
         #msgBox { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: white; color: #2c3e50; padding: 30px 40px; border-radius: 25px; text-align: center; z-index: 20; display: none; box-shadow: 0 15px 40px rgba(0,0,0,0.5); border: 4px solid #8e2de2; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); width: 85%; max-width: 320px; }
         #msgBox.show { transform: translate(-50%, -50%) scale(1); }
         #msgBox h1 { font-size: 28px; margin-bottom: 20px; font-weight: 900; }
         #msgBox button { background: #8e2de2; color: white; border: none; padding: 12px 30px; font-size: 18px; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #6a1b9a; }
 
-        .toggle { display: flex; background: white; border-radius: 20px; padding: 5px; margin-bottom: 10px; justify-content: center; }
-        .tb { padding: 10px 20px; font-size: 18px; font-weight: 700; color: #2c3e50; background: none; border: none; border-radius: 15px; cursor: pointer; }
-        .ta { background: #8e2de2; color: white !important; }
-
-        #joystick1, #joystick2 { position: absolute; bottom: 30px; width: 120px; height: 120px; z-index: 5; display: none; pointer-events: none; }
-        #joystick1 { left: 30px; }
-        #joystick2 { right: 30px; }
-        .joystick-base { width: 100%; height: 100%; border-radius: 50%; background: rgba(255,255,255,0.2); border: 3px solid rgba(255,255,255,0.4); position: absolute; }
-        .joystick-stick { width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.8); position: absolute; top: 30px; left: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        #joy1, #joy2 { position: absolute; bottom: 30px; width: 120px; height: 120px; z-index: 5; display: none; pointer-events: none; }
+        #joy1 { left: 30px; }
+        #joy2 { right: 30px; }
+        .jb { width: 100%; height: 100%; border-radius: 50%; background: rgba(255,255,255,0.2); border: 3px solid rgba(255,255,255,0.4); position: absolute; }
+        .js { width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.8); position: absolute; top: 30px; left: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         
         #score1, #score2 { position: absolute; top: 15px; font-size: 20px; font-weight: 700; color: white; z-index: 5; display: none; text-shadow: 1px 1px 2px black; }
-        #score1 { left: 80px; }
+        #score1 { left: 130px; }
         #score2 { right: 80px; }
 
-        #musicBtn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); color: white; border: 2px solid white; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; z-index: 15; display: flex; align-items: center; justify-content: center; }
-        #rotHint { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 15px; z-index: 30; display: none; text-align: center; }
+        #editor { background: linear-gradient(180deg, #0f0c29, #302b63, #24243e); color: white; }
+        .editor-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; max-width: 400px; }
+        .color-btn, .hat-btn { width: 50px; height: 50px; border-radius: 10px; border: 3px solid #fff; font-size: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .selected { border-color: #ffd700; box-shadow: 0 0 15px #ffd700; }
+        .editor-label { font-size: 20px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <button id="musicBtn" onclick="toggleMusic()">🔇</button>
-    <div id="menu">
-        <div class="title">🎮 ИГРЫ</div>
-        <div class="toggle">
-            <button class="tb ta" onclick="setMode(1)">1 ИГРОК</button>
-            <button class="tb" onclick="setMode(2)">2 ИГРОКА</button>
-        </div>
-        <div class="btn-container">
-            <button class="game-btn" onclick="startGame(1)"><div class="btn-icon">🏠</div><div class="btn-text">Дом от Хагги</div></button>
-            <button class="game-btn" onclick="startGame(2)"><div class="btn-icon">🏃</div><div class="btn-text">Убеги от монстра</div></button>
-            <button class="game-btn" onclick="startGame(3)"><div class="btn-icon">🙈</div><div class="btn-text">Прятки Хагги</div></button>
-            <button class="game-btn" onclick="startGame(4)"><div class="btn-icon">🏥</div><div class="btn-text">Больница</div></button>
-            <button class="game-btn" onclick="startGame(5)"><div class="btn-icon">🍔</div><div class="btn-text">Вкусно или Туалет</div></button>
-            <button class="game-btn" onclick="startGame(6)"><div class="btn-icon">🛵</div><div class="btn-text">Ресторан Еды</div></button>
-            <button class="game-btn" onclick="startGame(7)"><div class="btn-icon">🥤</div><div class="btn-text">Мутант Кола</div></button>
-            <button class="game-btn" onclick="startGame(8)"><div class="btn-icon">🐻</div><div class="btn-text">Мишка Берлога</div></button>
-            <button class="game-btn" onclick="startGame(9)"><div class="btn-icon">🛏️</div><div class="btn-text">Аномалия Зубы</div></button>
-            <button class="game-btn" onclick="startGame(10)"><div class="btn-icon">🎥</div><div class="btn-text">Сим Ютубера</div></button>
-            <button class="game-btn" onclick="startGame(11)"><div class="btn-icon">🐹</div><div class="btn-text">Эдит Хомяки</div></button>
-            <button class="game-btn" onclick="startGame(12)"><div class="btn-icon">🎨</div><div class="btn-text">Рисование Кур</div></button>
-            <button class="game-btn" onclick="startGame(13)"><div class="btn-icon">🧙‍♀️</div><div class="btn-text">Белая Ведьма</div></button>
-            <button class="game-btn" onclick="startGame(14)"><div class="btn-icon">🥓</div><div class="btn-text">1000 Беконов</div></button>
-        </div>
+    <!-- Экран выбора языка -->
+    <div id="langScreen" class="screen">
+        <div class="title">🌐 SELECT LANGUAGE</div>
+        <button class="lang-btn" onclick="setLang('ru')">🇷🇺 Русский</button>
+        <button class="lang-btn" onclick="setLang('en')">🇬🇧 English</button>
     </div>
 
+    <!-- Главное меню -->
+    <div id="menu" class="screen hidden">
+        <div class="title" id="menuTitle">🎮 ИГРЫ</div>
+        <div class="toggle">
+            <button class="tb ta" onclick="setMode(1)" id="mode1Btn">1 ИГРОК</button>
+            <button class="tb" onclick="setMode(2)" id="mode2Btn">2 ИГРОКА</button>
+        </div>
+        <button class="game-btn" style="background:#ffd700; margin-bottom:15px;" onclick="openEditor()">
+            <div class="btn-icon">👕</div><div class="btn-text" id="editorBtnText">РЕДАКТОР ПЕРСОНАЖА</div>
+        </button>
+        <div class="btn-container" id="gameList"></div>
+    </div>
+
+    <!-- Редактор -->
+    <div id="editor" class="screen hidden">
+        <div class="title" id="editorTitle">👕 РЕДАКТОР</div>
+        <div class="editor-label" id="colorLabel">Цвет рубашки:</div>
+        <div class="editor-row" id="colorsRow"></div>
+        <div class="editor-label" id="hatLabel">Головной убор:</div>
+        <div class="editor-row" id="hatsRow"></div>
+        <button class="game-btn" style="background:#2ecc71; margin-top:20px;" onclick="closeEditor()">
+            <div class="btn-icon">✅</div><div class="btn-text" id="saveBtnText">СОХРАНИТЬ</div>
+        </button>
+    </div>
+
+    <button id="langBtn" onclick="setLang(currentLang === 'ru' ? 'en' : 'ru')">🌐</button>
     <div id="score1">P1: 0</div><div id="score2">P2: 0</div>
     <button id="exitBtn" onclick="exitGame()">✖</button>
+    <button id="musicBtn" onclick="toggleMusic()">🔇</button>
     
     <canvas id="gameCanvas"></canvas>
     
-    <div id="joystick1"><div class="joystick-base"></div><div class="joystick-stick"></div></div>
-    <div id="joystick2"><div class="joystick-base"></div><div class="joystick-stick"></div></div>
-    <div id="msgBox"><h1 id="msgText"></h1><button onclick="exitGame()">В МЕНЮ</button></div>
-    <div id="rotHint">Поверни телефон вертикально! ⬆️<br><button onclick="document.getElementById('rotHint').style.display='none'">ОК</button></div>
+    <div id="joy1" class="jb"><div class="jb"></div><div class="js"></div></div>
+    <div id="joy2" class="jb"><div class="jb"></div><div class="js"></div></div>
+    <div id="msgBox"><h1 id="msgText"></h1><button onclick="exitGame()" id="msgBtn">В МЕНЮ</button></div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const langScreen = document.getElementById('langScreen');
         const menu = document.getElementById('menu');
+        const editor = document.getElementById('editor');
         const exitBtn = document.getElementById('exitBtn');
         const msgBox = document.getElementById('msgBox');
         const msgText = document.getElementById('msgText');
-        const joy1Div = document.getElementById('joystick1');
-        const joy2Div = document.getElementById('joystick2');
+        const msgBtn = document.getElementById('msgBtn');
+        const joy1Div = document.getElementById('joy1');
+        const joy2Div = document.getElementById('joy2');
         const score1Div = document.getElementById('score1');
         const score2Div = document.getElementById('score2');
         const musicBtn = document.getElementById('musicBtn');
-        const rotHint = document.getElementById('rotHint');
+        const gameList = document.getElementById('gameList');
 
-        let W, H, currentGame = 0, timer = 0, gMode = 1;
-        let p1 = { x: 100, y: 0, vx: 0, vy: 0, ls: 0, angle: 0, mt: 0, score: 0, carry: null, honey: 0 };
-        let p2 = { x: 200, y: 0, vx: 0, vy: 0, ls: 0, angle: 0, mt: 0, score: 0, carry: null, honey: 0 };
+        let W, H, currentGame = 0, timer = 0, gMode = 1, currentLang = 'ru';
+
+        // Переводы
+        const i18n = {
+            ru: {
+                title: "🎮 ИГРЫ", p1: "1 ИГРОК", p2: "2 ИГРОКА", editor: "РЕДАКТОР ПЕРСОНАЖА", backMenu: "В МЕНЮ",
+                editorTitle: "👕 РЕДАКТОР", color: "Цвет рубашки:", hat: "Головной убор:", save: "СОХРАНИТЬ",
+                games: ["Дом от Хагги","Убеги от монстра","Прятки Хагги","Больница","Вкусно или Туалет","Ресторан Еды","Мутант Кола","Мишка Берлога","Аномалия Зубы","Сим Ютубера","Эдит Хомяки","Рисование Кур","Белая Ведьма","1000 Беконов"],
+                msgs: ["Строй дом!", "Беги!", "Прятки!", "Лечи животных!", "Лови еду!", "Ресторан!", "Пей колу!", "Собери мед!", "Аномалия зубы!", "Снимай видео!", "Эдит хомяки!", "Рисуй кур!", "Уворачивайся от ведьмы!", "1000 беконов!"],
+                win: ["🎉 Победа!", "🎉 Убежали!", "🎉 Сбежали!"],
+                lose: "💀 ВЫ ПРОИГРАЛИ!",
+                ghost: ["Ой!", "Поймали!", "Заметили!", "Фу!", "Бах!", "Диз!"]
+            },
+            en: {
+                title: "🎮 GAMES", p1: "1 PLAYER", p2: "2 PLAYERS", editor: "CHARACTER EDITOR", backMenu: "MAIN MENU",
+                editorTitle: "👕 EDITOR", color: "Shirt color:", hat: "Hat:", save: "SAVE",
+                games: ["House from Huggy","Run from Monster","Huggy Hideout","Hospital","Yummy or Toilet","Food Restaurant","Mutant Cola","Bear Den","Anomaly Teeth","Youtuber Sim","Hamster Edit","Chicken Draw","White Witch","1000 Bacons"],
+                msgs: ["Build a house!", "Run!", "Hide and seek!", "Heal animals!", "Catch food!", "Restaurant!", "Drink cola!", "Collect honey!", "Anomaly teeth!", "Shoot video!", "Hamster edit!", "Draw chickens!", "Dodge the witch!", "1000 bacons!"],
+                win: ["🎉 Victory!", "🎉 Escaped!", "🎉 Escaped!"],
+                lose: "💀 YOU LOST!",
+                ghost: ["Ouch!", "Caught!", "Spotted!", "Yuck!", "Boom!", "Dislike!"]
+            }
+        };
+
+        function setLang(lang) {
+            currentLang = lang;
+            const t = i18n[lang];
+            document.getElementById('menuTitle').innerText = t.title;
+            document.getElementById('mode1Btn').innerText = t.p1;
+            document.getElementById('mode2Btn').innerText = t.p2;
+            document.getElementById('editorBtnText').innerText = t.editor;
+            document.getElementById('editorTitle').innerText = t.editorTitle;
+            document.getElementById('colorLabel').innerText = t.color;
+            document.getElementById('hatLabel').innerText = t.hat;
+            document.getElementById('saveBtnText').innerText = t.save;
+            msgBtn.innerText = t.backMenu;
+            
+            // Обновляем список игр
+            gameList.innerHTML = '';
+            const icons = ['🏠','🏃','🙈','🏥','🍔','🛵','🥤','🐻','🛏️','🎥','🐹','🎨','🧙‍♀️','🥓'];
+            t.games.forEach((g, i) => {
+                let btn = document.createElement('button');
+                btn.className = 'game-btn';
+                btn.onclick = () => startGame(i+1);
+                btn.innerHTML = `<div class="btn-icon">${icons[i]}</div><div class="btn-text">${g}</div>`;
+                gameList.appendChild(btn);
+            });
+
+            langScreen.classList.add('hidden');
+            menu.classList.remove('hidden');
+        }
+
+        let custom = { color: '#e74c3c', hat: 'none' };
+        const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e67e22', '#1abc9c', '#e84393'];
+        const hats = ['none', '👑', '🎓', '🧢', '🎩', '🪖', '🐰', '🦸‍♂️'];
+
+        let p1 = { x: 100, y: 0, vx: 0, vy: 0, ls: 0, angle: 0, mt: 0, score: 0, carry: null, honey: 0, dead: false, tx: 0, ty: 0 };
+        let p2 = { x: 200, y: 0, vx: 0, vy: 0, ls: 0, angle: 0, mt: 0, score: 0, carry: null, honey: 0, dead: false, tx: 0, ty: 0 };
         let j1 = { active: false, bx: 90, by: 0, dx: 0, dy: 0, id: null };
         let j2 = { active: false, bx: 0, by: 0, dx: 0, dy: 0, id: null };
 
-        // --- МУЗЫКА ---
+        function initEditor() {
+            const cRow = document.getElementById('colorsRow');
+            const hRow = document.getElementById('hatsRow');
+            cRow.innerHTML = ''; hRow.innerHTML = '';
+            colors.forEach(c => {
+                let b = document.createElement('div');
+                b.className = 'color-btn' + (c === custom.color ? ' selected' : '');
+                b.style.background = c;
+                b.onclick = () => { custom.color = c; initEditor(); };
+                cRow.appendChild(b);
+            });
+            hats.forEach(h => {
+                let b = document.createElement('div');
+                b.className = 'hat-btn' + (h === custom.hat ? ' selected' : '');
+                b.innerText = h === 'none' ? '❌' : h;
+                b.onclick = () => { custom.hat = h; initEditor(); };
+                hRow.appendChild(b);
+            });
+        }
+        function openEditor() { menu.classList.add('hidden'); editor.classList.remove('hidden'); }
+        function closeEditor() { editor.classList.add('hidden'); menu.classList.remove('hidden'); }
+
         let ac=null, mOn=false, mInt=null, mStep=0;
         function toggleMusic() {
             if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
@@ -106,12 +206,7 @@
             mOn = !mOn;
             musicBtn.innerHTML = mOn ? "🔊" : "🔇";
             musicBtn.style.background = mOn ? "rgba(46, 204, 113,0.9)" : "rgba(0,0,0,0.6)";
-            if (mOn) {
-                if(mInt) clearInterval(mInt);
-                mInt = setInterval(musicTick, 200);
-            } else {
-                clearInterval(mInt);
-            }
+            if (mOn) { if(mInt) clearInterval(mInt); mInt = setInterval(musicTick, 200); } else { clearInterval(mInt); }
         }
         function musicTick() {
             if (!mOn || !ac) return;
@@ -145,15 +240,11 @@
             n.start(); n.stop(ac.currentTime + duration);
         }
 
-        // --- ЭКРАН ---
-        function resize() { W = innerWidth; H = innerHeight; canvas.width = W; canvas.height = H; j1.by = H - 90; j2.bx = W - 90; j2.by = H - 90; checkOrient(); }
-        function checkOrient() { if (innerWidth > innerHeight && currentGame !== 0) { rotHint.style.display = 'block'; } else { rotHint.style.display = 'none'; } }
+        function resize() { W = innerWidth; H = innerHeight; canvas.width = W; canvas.height = H; j1.by = H - 90; j2.bx = W - 90; j2.by = H - 90; }
         addEventListener('resize', resize); resize();
 
-        // --- ОЗВУЧКА ---
-        function sp(v) { try { if ('speechSynthesis' in window) { speechSynthesis.cancel(); let u = new SpeechSynthesisUtterance(v); u.lang = 'ru-RU'; u.rate = 1.1; speechSynthesis.speak(u); } } catch(e){} }
+        function sp(v) { try { if ('speechSynthesis' in window) { speechSynthesis.cancel(); let u = new SpeechSynthesisUtterance(v); u.lang = currentLang === 'ru' ? 'ru-RU' : 'en-US'; u.rate = 1.1; speechSynthesis.speak(u); } } catch(e){} }
 
-        // --- УПРАВЛЕНИЕ ---
         function setMode(n) { gMode = n; document.querySelectorAll('.tb').forEach((b,i) => b.classList.toggle('ta', i === n-1)); }
         function handleTS(e) {
             e.preventDefault();
@@ -201,7 +292,7 @@
         canvas.addEventListener('touchcancel', handleTE, {passive: false});
 
         canvas.addEventListener('mousedown', e => {
-            toggleMusic(); // unlock audio
+            if (!mOn) toggleMusic();
             if (e.clientX < W/2) {
                 j1.active = true; j1.dx = e.clientX - j1.bx; j1.dy = e.clientY - j1.by;
                 let d = Math.hypot(j1.dx, j1.dy); if (d > 40) { j1.dx = (j1.dx/d)*40; j1.dy = (j1.dy/d)*40; }
@@ -229,37 +320,45 @@
         });
 
         function startGame(n) {
-            currentGame = n; menu.style.display = 'none'; exitBtn.style.display = 'flex'; timer = 0;
+            currentGame = n; menu.classList.add('hidden'); exitBtn.style.display = 'flex'; timer = 0;
             joy1Div.style.display = 'block'; score1Div.style.display = 'block';
             if (gMode === 2) { joy2Div.style.display = 'block'; score2Div.style.display = 'block'; } else { joy2Div.style.display = 'none'; score2Div.style.display = 'none'; }
-            p1.x = W/2-50; p1.y = H/2; p1.score = 0; p1.carry = null; p1.mt = 0; p1.honey = 0;
-            p2.x = W/2+50; p2.y = H/2; p2.score = 0; p2.carry = null; p2.mt = 0; p2.honey = 0;
+            p1.x = W/2-50; p1.y = H/2; p1.score = 0; p1.carry = null; p1.mt = 0; p1.honey = 0; p1.dead = false; p1.tx = W/2-50; p1.ty = H/2;
+            p2.x = W/2+50; p2.y = H/2; p2.score = 0; p2.carry = null; p2.mt = 0; p2.honey = 0; p2.dead = false; p2.tx = W/2+50; p2.ty = H/2;
             msgBox.classList.remove('show'); msgBox.style.display = 'none';
-            if (!mOn) toggleMusic(); checkOrient();
+            if (!mOn) toggleMusic();
             
-            if (n===1) sp("Строй дом!");
-            else if (n===2) sp("Беги!");
-            else if (n===3) { sp("Прятки!"); huggy = {looking: false}; huggyTimer = 0; boxes3 = []; for(let i=0; i<5; i++) boxes3.push({x:100+Math.random()*(W-200), y:200+Math.random()*(H-400)}); }
-            else if (n===4) sp("Лечи животных!");
-            else if (n===5) sp("Лови еду!");
-            else if (n===6) { sp("Ресторан!"); orders=[]; delivery=[]; phone={x:W/2,y:100}; tables=[]; }
-            else if (n===7) { sp("Пей колу!"); bots=[]; cola=[]; for(let i=0; i<5; i++) cola.push({x:Math.random()*W, y:Math.random()*H}); }
-            else if (n===8) { sp("Собери мед!"); coins=[]; home={x:W/2, y:H-150, level:0}; }
-            else if (n===9) sp("Аномалия зубы!");
-            else if (n===10) sp("Снимай видео!");
-            else if (n===11) sp("Эдит хомяки!");
-            else if (n===12) sp("Рисуй кур!");
-            else if (n===13) sp("Уворачивайся от ведьмы!");
-            else if (n===14) { sp("1000 беконов!"); bacons=[]; spawnTimer=0; }
+            if (n===1) { sp(i18n[currentLang].msgs[0]); blocks = []; monster = null; }
+            else if (n===2) sp(i18n[currentLang].msgs[1]);
+            else if (n===3) { sp(i18n[currentLang].msgs[2]); huggy = {l:false}; huggyTimer = 0; boxes3 = []; for(let i=0; i<5; i++) boxes3.push({x:100+Math.random()*(W-200), y:100+Math.random()*(H-200)}); }
+            else if (n===4) sp(i18n[currentLang].msgs[3]);
+            else if (n===5) sp(i18n[currentLang].msgs[4]);
+            else if (n===6) { sp(i18n[currentLang].msgs[5]); orders=[]; delivery=[]; phone={x:W/2,y:100}; tables=[]; }
+            else if (n===7) { sp(i18n[currentLang].msgs[6]); bots=[]; cola=[]; for(let i=0; i<5; i++) cola.push({x:Math.random()*W, y:Math.random()*H}); }
+            else if (n===8) { sp(i18n[currentLang].msgs[7]); coins=[]; home={x:W/2, y:H-150, level:0}; }
+            else if (n===9) sp(i18n[currentLang].msgs[8]);
+            else if (n===10) sp(i18n[currentLang].msgs[9]);
+            else if (n===11) sp(i18n[currentLang].msgs[10]);
+            else if (n===12) sp(i18n[currentLang].msgs[11]);
+            else if (n===13) sp(i18n[currentLang].msgs[12]);
+            else if (n===14) { sp(i18n[currentLang].msgs[13]); bacons=[]; spawnTimer=0; }
         }
         function exitGame() {
-            currentGame = 0; menu.style.display = 'flex'; exitBtn.style.display = 'none';
+            currentGame = 0; menu.classList.remove('hidden'); exitBtn.style.display = 'none';
             joy1Div.style.display = 'none'; joy2Div.style.display = 'none';
             score1Div.style.display = 'none'; score2Div.style.display = 'none';
             msgBox.classList.remove('show'); msgBox.style.display = 'none';
-            rotHint.style.display = 'none'; speechSynthesis.cancel();
-            if (mOn) toggleMusic();
+            speechSynthesis.cancel(); if (mOn) toggleMusic();
         }
+        
+        function checkDead() {
+            if (p1.dead && (gMode === 1 || p2.dead)) {
+                showMsg(i18n[currentLang].lose);
+                return true;
+            }
+            return false;
+        }
+        
         function showMsg(v) {
             msgText.innerHTML = v; msgBox.style.display = 'block';
             setTimeout(() => msgBox.classList.add('show'), 10);
@@ -285,6 +384,11 @@
             score2Div.innerText = 'P2: ' + (currentGame===8 ? p2.honey : p2.score);
         }
         function updatePlayer(p) {
+            if (p.dead) {
+                p.x += p.vx * 1.5; p.y += p.vy * 1.5;
+                if (p.x < 0) p.x = W; if (p.x > W) p.x = 0; if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+                return;
+            }
             p.x += p.vx; p.y += p.vy;
             if (p.x < 20) p.x = 20; if (p.x > W-20) p.x = W-20; if (p.y < 20) p.y = 20; if (p.y > H-20) p.y = H-20;
             if (Math.abs(p.vx) > 0.1 || Math.abs(p.vy) > 0.1) p.ls = (p.ls + 0.3) % (2*Math.PI);
@@ -299,13 +403,20 @@
             else if (currentGame===13) d13(); else if (currentGame===14) d14();
             
             if (gMode === 2) drawPlayer(p2, '#3498db');
-            drawPlayer(p1, '#e74c3c');
+            drawPlayer(p1, custom.color);
         }
         function drawPlayer(p, col) {
             ctx.fillStyle = 'rgba(0,0,0,0.2)';
             ctx.beginPath(); ctx.ellipse(p.x, p.y+25, 20, 8, 0, 0, 2*Math.PI); ctx.fill();
             ctx.save(); ctx.translate(p.x, p.y);
             if (p.vx !== 0 || p.vy !== 0) ctx.rotate(p.angle + Math.PI/2);
+            
+            if (p.dead) {
+                ctx.font = '40px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText('👻', 0, 0);
+                ctx.restore(); return;
+            }
+            
             ctx.fillStyle = '#2c3e50';
             ctx.fillRect(-15, 10, 12, 20 + (Math.abs(p.vx)>0.1 ? Math.sin(p.ls)*5 : 0));
             ctx.fillRect(3, 10, 12, 20 - (Math.abs(p.vx)>0.1 ? Math.sin(p.ls)*5 : 0));
@@ -317,20 +428,26 @@
             ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(-6, -28, 5, 0, 2*Math.PI); ctx.arc(6, -28, 5, 0, 2*Math.PI); ctx.fill();
             ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(-6, -28, 2, 0, 2*Math.PI); ctx.arc(6, -28, 2, 0, 2*Math.PI); ctx.fill();
             ctx.strokeStyle = 'black'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, -20, 8, 0, Math.PI); ctx.stroke();
+            
+            if (custom.hat !== 'none') {
+                ctx.font = '25px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(custom.hat, 0, -42);
+            }
             ctx.restore();
         }
 
-        // --- РЕЖИМЫ 1-8 (Основные) ---
         let blocks = [], monster = null;
         function u1() {
-            if (timer === 1) sp("Строй стены!");
-            if (timer > 600 && !monster) { monster = {x: -100, y: H/2}; sp("Хагги идет!"); }
+            if (timer === 1) sp(i18n[currentLang].msgs[0]);
+            if (timer > 600 && !monster) { monster = {x: -100, y: H/2}; sp("Huggy!"); }
             if (monster) {
                 let b = false;
                 blocks.forEach(r => { if (monster.x>r.x-50 && monster.x<r.x+50 && monster.y>r.y-40 && monster.y<r.y+40) { r.h--; b = true; if (r.h<=0) blocks.splice(blocks.indexOf(r), 1); } });
                 if (!b) monster.x += 1.5;
-                if (monster.x > W+100) showMsg('🎉 Победа!');
-                if (Math.hypot(monster.x-p1.x, monster.y-p1.y) < 60 || (gMode===2 && Math.hypot(monster.x-p2.x, monster.y-p2.y) < 60)) showMsg('💀 Хагги съел вас!');
+                if (monster.x > W+100) { if(!checkDead()) showMsg(i18n[currentLang].win[0]); }
+                if (!p1.dead && Math.hypot(monster.x-p1.x, monster.y-p1.y) < 60) { p1.dead = true; sp(i18n[currentLang].ghost[0]); }
+                if (gMode===2 && !p2.dead && Math.hypot(monster.x-p2.x, monster.y-p2.y) < 60) { p2.dead = true; sp(i18n[currentLang].ghost[0]); }
+                checkDead();
             }
             if (j1.active && timer % 10 === 0) blocks.push({x: p1.x, y: p1.y, h: 3});
             if (gMode===2 && j2.active && timer % 10 === 0) blocks.push({x: p2.x, y: p2.y, h: 3});
@@ -344,11 +461,14 @@
         }
         let chaser = {x:100, y:0};
         function u2() {
-            if (timer === 1) sp("Беги!");
-            let ax = (p1.x+p2.x)/2, ay = (p1.y+p2.y)/2; if (gMode===1) { ax = p1.x; ay = p1.y; }
-            chaser.x += (ax-chaser.x)*.01; chaser.y += (ay-chaser.y)*.01;
-            if (timer > 3600) showMsg('🎉 Убежали!');
-            if (Math.hypot(chaser.x-p1.x, chaser.y-p1.y) < 50 || (gMode===2 && Math.hypot(chaser.x-p2.x, chaser.y-p2.y) < 50)) showMsg('💀 Поймали!');
+            if (timer === 1) sp(i18n[currentLang].msgs[1]);
+            let aliveP = p1.dead ? p2 : p1;
+            if (p1.dead && p2.dead) aliveP = p1;
+            chaser.x += (aliveP.x-chaser.x)*.01; chaser.y += (aliveP.y-chaser.y)*.01;
+            if (timer > 3600) { if(!checkDead()) showMsg(i18n[currentLang].win[1]); }
+            if (!p1.dead && Math.hypot(chaser.x-p1.x, chaser.y-p1.y) < 50) { p1.dead = true; sp(i18n[currentLang].ghost[1]); }
+            if (gMode===2 && !p2.dead && Math.hypot(chaser.x-p2.x, chaser.y-p2.y) < 50) { p2.dead = true; sp(i18n[currentLang].ghost[1]); }
+            checkDead();
         }
         function d2() {
             ctx.fillStyle='#2c3e50'; ctx.fillRect(0,0,W,H);
@@ -358,13 +478,16 @@
         }
         let huggy = {l:false}, huggyTimer = 0, boxes3 = [];
         function u3() {
-            if (p1.y < 100 || (gMode===2 && p2.y < 100)) { showMsg('🎉 Сбежали!'); return; }
+            if (!p1.dead && p1.y < 100) { showMsg(i18n[currentLang].win[2]); return; }
+            if (gMode===2 && !p2.dead && p2.y < 100) { showMsg(i18n[currentLang].win[2]); return; }
             huggyTimer++;
-            if (huggyTimer > 150) { huggy.l = !huggy.l; huggyTimer = 0; sp(huggy.l ? "Прячьтесь!" : "Идите!"); }
+            if (huggyTimer > 150) { huggy.l = !huggy.l; huggyTimer = 0; sp(huggy.l ? "Hide!" : "Go!"); }
             if (huggy.l) {
-                let h1 = false, h2 = gMode !== 2;
-                for (let b of boxes3) { if (Math.hypot(b.x-p1.x, b.y-p1.y) < 60) h1 = true; if (gMode===2 && Math.hypot(b.x-p2.x, b.y-p2.y) < 60) h2 = true; }
-                if (!h1 || (gMode===2 && !h2)) showMsg('💀 Заметили!');
+                let h1 = p1.dead, h2 = gMode !== 2 || p2.dead;
+                for (let b of boxes3) { if (!h1 && Math.hypot(b.x-p1.x, b.y-p1.y) < 60) h1 = true; if (gMode===2 && !h2 && Math.hypot(b.x-p2.x, b.y-p2.y) < 60) h2 = true; }
+                if (!h1) { p1.dead = true; sp(i18n[currentLang].ghost[2]); }
+                if (gMode===2 && !h2) { p2.dead = true; sp(i18n[currentLang].ghost[2]); }
+                checkDead();
             }
         }
         function d3() {
@@ -378,9 +501,9 @@
         }
         let animals = [], aT = ['🐶','🐱','🐰','🐹','🐻'];
         function u4() {
-            if (timer === 1) sp("Лечи!");
+            if (timer === 1) sp(i18n[currentLang].msgs[3]);
             if (timer % 100 === 0 && animals.length < 5) animals.push({x:100+Math.random()*(W-200), y:200+Math.random()*(H-250), s:true, t:aT[Math.floor(Math.random()*5)]});
-            animals.forEach(a => { if (a.s && (Math.hypot(p1.x-a.x,p1.y-a.y)<50 || (gMode===2 && Math.hypot(p2.x-a.x,p2.y-a.y)<50))) { a.s = false; p1.score++; sp("Здорово!"); setTimeout(()=>{let i=animals.indexOf(a); if(i>-1) animals.splice(i,1)}, 2000); } });
+            animals.forEach(a => { if (a.s && ((!p1.dead && Math.hypot(p1.x-a.x,p1.y-a.y)<50) || (gMode===2 && !p2.dead && Math.hypot(p2.x-a.x,p2.y-a.y)<50))) { a.s = false; p1.score++; sp("Good!"); setTimeout(()=>{let i=animals.indexOf(a); if(i>-1) animals.splice(i,1)}, 2000); } });
         }
         function d4() {
             ctx.fillStyle='#ecf0f1'; ctx.fillRect(0,0,W,H); ctx.fillStyle='#bdc3c7'; ctx.fillRect(0,H-50,W,50);
@@ -389,9 +512,10 @@
         }
         let foods = [];
         function u5() {
-            if (timer === 1) sp("Лови!");
+            if (timer === 1) sp(i18n[currentLang].msgs[4]);
             if (timer % 40 === 0) foods.push({x:Math.random()*W, y:-50, t:Math.random()>.5?1:0});
-            foods.forEach(f => { f.y += 5; if (Math.hypot(f.x-p1.x,f.y-p1.y)<40 || (gMode===2 && Math.hypot(f.x-p2.x,f.y-p2.y)<40)) { if (f.t===0) showMsg('🤢 В туалет!'); else { sp("Вкусно!"); p1.score++; } foods.splice(foods.indexOf(f),1); } if (f.y > H) foods.splice(foods.indexOf(f),1); });
+            foods.forEach(f => { f.y += 5; if (!p1.dead && Math.hypot(f.x-p1.x,f.y-p1.y)<40) { if (f.t===0) { p1.dead = true; sp(i18n[currentLang].ghost[3]); } else { sp("Yummy!"); p1.score++; } foods.splice(foods.indexOf(f),1); } if (gMode===2 && !p2.dead && Math.hypot(f.x-p2.x,f.y-p2.y)<40) { if (f.t===0) { p2.dead = true; sp(i18n[currentLang].ghost[3]); } else { sp("Yummy!"); p2.score++; } foods.splice(foods.indexOf(f),1); } if (f.y > H) foods.splice(foods.indexOf(f),1); });
+            checkDead();
         }
         function d5() {
             let g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#ff9a9e'); g.addColorStop(1,'#fecfef');
@@ -400,15 +524,15 @@
         }
         let phone={}, orders=[], delivery=[], tables=[], fT=['🍕','🍔','🌮','🍩','🍟'];
         function u6() {
-            if (timer === 1) sp("Подойди к телефону!");
+            if (timer === 1) sp(i18n[currentLang].msgs[5]);
             if (timer % 200 === 0 && tables.length < 3) tables.push({x:100+Math.random()*(W-200), y:H-150, want:fT[Math.floor(Math.random()*5)]});
-            if (Math.hypot(p1.x-phone.x,p1.y-phone.y)<50 && timer % 100 === 0) { let f=fT[Math.floor(Math.random()*5)]; delivery.push({x:-50, y:100, type:f}); sp("Заказ готов!"); }
-            delivery.forEach(d => { d.x += 2; if (Math.hypot(p1.x-d.x,p1.y-d.y)<50) { p1.carry = d.type; delivery.splice(delivery.indexOf(d),1); sp("Взял еду!"); } if (gMode===2 && Math.hypot(p2.x-d.x,p2.y-d.y)<50) { p2.carry = d.type; delivery.splice(delivery.indexOf(d),1); sp("Взял еду!"); } });
-            tables.forEach(tb => { if (p1.carry && Math.hypot(p1.x-tb.x,p1.y-tb.y)<50 && p1.carry===tb.want) { p1.carry=null; p1.score++; tb.want=null; setTimeout(()=>{let i=tables.indexOf(tb); if(i>-1) tables.splice(i,1)},1000); sp("Приятного аппетита!"); } if (gMode===2 && p2.carry && Math.hypot(p2.x-tb.x,p2.y-tb.y)<50 && p2.carry===tb.want) { p2.carry=null; p2.score++; tb.want=null; setTimeout(()=>{let i=tables.indexOf(tb); if(i>-1) tables.splice(i,1)},1000); sp("Приятного аппетита!"); } });
+            if (!p1.dead && Math.hypot(p1.x-phone.x,p1.y-phone.y)<50 && timer % 100 === 0) { let f=fT[Math.floor(Math.random()*5)]; delivery.push({x:-50, y:100, type:f}); sp("Order ready!"); }
+            delivery.forEach(d => { d.x += 2; if (!p1.dead && Math.hypot(p1.x-d.x,p1.y-d.y)<50) { p1.carry = d.type; delivery.splice(delivery.indexOf(d),1); sp("Got it!"); } if (gMode===2 && !p2.dead && Math.hypot(p2.x-d.x,p2.y-d.y)<50) { p2.carry = d.type; delivery.splice(delivery.indexOf(d),1); sp("Got it!"); } });
+            tables.forEach(tb => { if (p1.carry && Math.hypot(p1.x-tb.x,p1.y-tb.y)<50 && p1.carry===tb.want) { p1.carry=null; p1.score++; tb.want=null; setTimeout(()=>{let i=tables.indexOf(tb); if(i>-1) tables.splice(i,1)},1000); sp("Enjoy!"); } if (gMode===2 && p2.carry && Math.hypot(p2.x-tb.x,p2.y-tb.y)<50 && p2.carry===tb.want) { p2.carry=null; p2.score++; tb.want=null; setTimeout(()=>{let i=tables.indexOf(tb); if(i>-1) tables.splice(i,1)},1000); sp("Enjoy!"); } });
         }
         function d6() {
             ctx.fillStyle='#fff5cc'; ctx.fillRect(0,0,W,H); ctx.fillStyle='#e67e22'; ctx.fillRect(0,H-50,W,50);
-            ctx.font='20px Arial'; ctx.fillStyle='#000'; ctx.textAlign='center'; ctx.fillText('📞 Телефон заказов',phone.x,H-20);
+            ctx.font='20px Arial'; ctx.fillStyle='#000'; ctx.textAlign='center'; ctx.fillText('📞',phone.x,H-20);
             ctx.font='60px Arial'; ctx.fillText('📞',phone.x,phone.y);
             delivery.forEach(d => { ctx.font='50px Arial'; ctx.fillText('🛵',d.x,d.y); ctx.font='30px Arial'; ctx.fillText(d.type,d.x,d.y-40); });
             tables.forEach(tb => { ctx.fillStyle='#8B4513'; ctx.fillRect(tb.x-30,tb.y+20,60,20); ctx.font='50px Arial'; ctx.fillText('🧑',tb.x,tb.y); if(tb.want){ ctx.font='30px Arial'; ctx.fillStyle='#000'; ctx.fillText(tb.want,tb.x+30,tb.y-10); } });
@@ -417,11 +541,11 @@
         }
         let cola=[], bots=[];
         function u7() {
-            if (timer === 1) sp("Пей колу!");
+            if (timer === 1) sp(i18n[currentLang].msgs[6]);
             if (timer % 50 === 0 && bots.length < 5) bots.push({x:Math.random()*W, y:Math.random()*H, vx:Math.random()*2-1, vy:Math.random()*2-1});
-            cola.forEach(p => { if (Math.hypot(p1.x-p.x,p1.y-p.y)<50) { p1.mt = 300; cola.splice(cola.indexOf(p),1); sp("Мутант!"); } if (gMode===2 && Math.hypot(p2.x-p.x,p2.y-p.y)<50) { p2.mt = 300; cola.splice(cola.indexOf(p),1); sp("Мутант!"); } });
+            cola.forEach(p => { if (!p1.dead && Math.hypot(p1.x-p.x,p1.y-p.y)<50) { p1.mt = 300; cola.splice(cola.indexOf(p),1); sp("Mutant!"); } if (gMode===2 && !p2.dead && Math.hypot(p2.x-p.x,p2.y-p.y)<50) { p2.mt = 300; cola.splice(cola.indexOf(p),1); sp("Mutant!"); } });
             if (cola.length < 3 && timer % 100 === 0) cola.push({x:Math.random()*W, y:Math.random()*H});
-            bots.forEach(b => { b.x += b.vx; b.y += b.vy; if (b.x<0||b.x>W) b.vx *= -1; if (b.y<0||b.y>H) b.vy *= -1; if (p1.mt>0 && Math.hypot(p1.x-b.x,p1.y-b.y)<50) { bots.splice(bots.indexOf(b),1); p1.score++; sp("Поймал!"); } if (gMode===2 && p2.mt>0 && Math.hypot(p2.x-b.x,p2.y-b.y)<50) { bots.splice(bots.indexOf(b),1); p2.score++; sp("Поймал!"); } });
+            bots.forEach(b => { b.x += b.vx; b.y += b.vy; if (b.x<0||b.x>W) b.vx *= -1; if (b.y<0||b.y>H) b.vy *= -1; if (p1.mt>0 && !p1.dead && Math.hypot(p1.x-b.x,p1.y-b.y)<50) { bots.splice(bots.indexOf(b),1); p1.score++; sp("Caught!"); } if (gMode===2 && p2.mt>0 && !p2.dead && Math.hypot(p2.x-b.x,p2.y-b.y)<50) { bots.splice(bots.indexOf(b),1); p2.score++; sp("Caught!"); } });
             if (p1.mt > 0) p1.mt--; if (p2.mt > 0) p2.mt--;
         }
         function d7() {
@@ -433,11 +557,11 @@
         }
         let coins=[], home={};
         function u8() {
-            if (timer === 1) sp("Собери мед!");
+            if (timer === 1) sp(i18n[currentLang].msgs[7]);
             if (coins.length < 5 && timer % 100 === 0) coins.push({x:Math.random()*W, y:Math.random()*H});
-            coins.forEach(co => { if (Math.hypot(p1.x-co.x,p1.y-co.y)<40) { coins.splice(coins.indexOf(co),1); p1.carry='🍯'; sp("Взял!"); } if (gMode===2 && Math.hypot(p2.x-co.x,p2.y-co.y)<40) { coins.splice(coins.indexOf(co),1); p2.carry='🍯'; sp("Взял!"); } });
-            if (p1.carry && Math.hypot(p1.x-home.x,p1.y-home.y)<80) { p1.carry=null; p1.honey++; home.level++; sp("Улучшаем берлогу!"); }
-            if (gMode===2 && p2.carry && Math.hypot(p2.x-home.x,p2.y-home.y)<80) { p2.carry=null; p2.honey++; home.level++; sp("Улучшаем берлогу!"); }
+            coins.forEach(co => { if (!p1.dead && Math.hypot(p1.x-co.x,p1.y-co.y)<40) { coins.splice(coins.indexOf(co),1); p1.carry='🍯'; sp("Got it!"); } if (gMode===2 && !p2.dead && Math.hypot(p2.x-co.x,p2.y-co.y)<40) { coins.splice(coins.indexOf(co),1); p2.carry='🍯'; sp("Got it!"); } });
+            if (p1.carry && Math.hypot(p1.x-home.x,p1.y-home.y)<80) { p1.carry=null; p1.honey++; home.level++; sp("Upgrade!"); }
+            if (gMode===2 && p2.carry && Math.hypot(p2.x-home.x,p2.y-home.y)<80) { p2.carry=null; p2.honey++; home.level++; sp("Upgrade!"); }
         }
         function d8() {
             let g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#87CEEB'); g.addColorStop(1,'#2ecc71');
@@ -446,21 +570,19 @@
             ctx.beginPath(); ctx.arc(W-100,200,60,0,2*Math.PI); ctx.arc(W-50,250,80,0,2*Math.PI); ctx.fill();
             coins.forEach(co => { ctx.font='40px Arial'; ctx.textAlign='center'; ctx.fillText('🍯',co.x,co.y); });
             let lv = home.level || 0;
-            ctx.font='20px Arial'; ctx.fillStyle='#000'; ctx.fillText('Ур. Берлоги: '+lv, home.x, home.y-60);
             ctx.font='80px Arial'; ctx.fillText('🏠', home.x, home.y);
             if (lv > 2) ctx.fillText('🪑', home.x-40, home.y);
             if (lv > 4) ctx.fillText('🛋️', home.x+40, home.y);
             if (lv > 6) ctx.fillText('📺', home.x, home.y-40);
         }
-
-        // --- РЕЖИМЫ 9-14 (Новые) ---
         let bed = {x:0, y:0, open:false, ct:0};
         function u9() {
-            if (timer === 1) sp("Беги от кровати!");
+            if (timer === 1) sp(i18n[currentLang].msgs[8]);
             bed.x = W/2; bed.y = 100; bed.ct++;
-            if (bed.ct > 100 + Math.random()*100) { bed.open = !bed.open; bed.ct = 0; if (bed.open) sp("Зубы!"); }
-            if (bed.open && Math.hypot(p1.x-bed.x, p1.y-bed.y) < 150) showMsg('💀 Зубы поймали!');
-            if (bed.open && gMode===2 && Math.hypot(p2.x-bed.x, p2.y-bed.y) < 150) showMsg('💀 Зубы поймали!');
+            if (bed.ct > 100 + Math.random()*100) { bed.open = !bed.open; bed.ct = 0; if (bed.open) sp("Teeth!"); }
+            if (bed.open && !p1.dead && Math.hypot(p1.x-bed.x, p1.y-bed.y) < 150) { p1.dead = true; sp(i18n[currentLang].ghost[0]); }
+            if (bed.open && gMode===2 && !p2.dead && Math.hypot(p2.x-bed.x, p2.y-bed.y) < 150) { p2.dead = true; sp(i18n[currentLang].ghost[0]); }
+            checkDead();
         }
         function d9() {
             ctx.fillStyle='#2c3e50'; ctx.fillRect(0,0,W,H);
@@ -476,17 +598,16 @@
             } else {
                 ctx.fillStyle='#bdc3c7'; ctx.fillRect(bed.x-80, bed.y+10, 160, 20);
             }
-            ctx.font='20px Arial'; ctx.textAlign='center'; ctx.fillText('🛏️ Кровать', bed.x, bed.y-40);
         }
-
         let cam = {x:0, y:0}, likes = [], haters = [];
         function u10() {
-            if (timer === 1) sp("Снимай видео!");
+            if (timer === 1) sp(i18n[currentLang].msgs[9]);
             cam.x = 100; cam.y = 100;
             if (timer % 50 === 0) likes.push({x:Math.random()*W, y:-50});
             if (timer % 100 === 0) haters.push({x:Math.random()*W, y:-50, vx:(Math.random()-.5)*2, vy:Math.random()*2+1});
-            likes.forEach(l => { l.y += 3; if (Math.hypot(p1.x-l.x,p1.y-l.y)<40) { likes.splice(likes.indexOf(l),1); p1.score++; sp("Лайк!"); } if (gMode===2 && Math.hypot(p2.x-l.x,p2.y-l.y)<40) { likes.splice(likes.indexOf(l),1); p2.score++; sp("Лайк!"); } });
-            haters.forEach(h => { h.x += h.vx; h.y += h.vy; if (h.y > H) haters.splice(haters.indexOf(h),1); if (Math.hypot(p1.x-h.x,p1.y-h.y)<40) showMsg('💀 Хейтер задизлайкал!'); if (gMode===2 && Math.hypot(p2.x-h.x,p2.y-h.y)<40) showMsg('💀 Хейтер задизлайкал!'); });
+            likes.forEach(l => { l.y += 3; if (!p1.dead && Math.hypot(p1.x-l.x,p1.y-l.y)<40) { likes.splice(likes.indexOf(l),1); p1.score++; sp("Like!"); } if (gMode===2 && !p2.dead && Math.hypot(p2.x-l.x,p2.y-l.y)<40) { likes.splice(likes.indexOf(l),1); p2.score++; sp("Like!"); } });
+            haters.forEach(h => { h.x += h.vx; h.y += h.vy; if (h.y > H) haters.splice(haters.indexOf(h),1); if (!p1.dead && Math.hypot(p1.x-h.x,p1.y-h.y)<40) { p1.dead = true; sp(i18n[currentLang].ghost[5]); } if (gMode===2 && !p2.dead && Math.hypot(p2.x-h.x,p2.y-h.y)<40) { p2.dead = true; sp(i18n[currentLang].ghost[5]); } });
+            checkDead();
         }
         function d10() {
             ctx.fillStyle='#ff0033'; ctx.fillRect(0,0,W,H);
@@ -494,7 +615,6 @@
             likes.forEach(l => { ctx.font='30px Arial'; ctx.fillText('❤️', l.x, l.y); });
             haters.forEach(h => { ctx.font='30px Arial'; ctx.fillText('🤡', h.x, h.y); });
         }
-
         let hamsters = [];
         function u11() {
             if (timer === 1) { hamsters = []; for(let i=0; i<30; i++) hamsters.push({x:Math.random()*W, y:Math.random()*H, c:['#FF5733','#33FF57','#3357FF','#F033FF','#FF33A8'][Math.floor(Math.random()*5)], s:Math.random()*20+10, d:Math.random()*Math.PI*2}); }
@@ -505,7 +625,6 @@
             ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
             hamsters.forEach(h => { ctx.fillStyle=h.c; ctx.beginPath(); ctx.arc(h.x,h.y,h.s,0,2*Math.PI); ctx.fill(); ctx.fillStyle='#000'; ctx.beginPath(); ctx.arc(h.x-h.s*.3,h.y-h.s*.2,h.s*.2,0,2*Math.PI); ctx.arc(h.x+h.s*.3,h.y-h.s*.2,h.s*.2,0,2*Math.PI); ctx.fill(); });
         }
-
         let drawPath = [], chickens = [];
         function u12() {
             if (timer === 1) { chickens = []; for(let i=0; i<10; i++) chickens.push({x:Math.random()*W, y:Math.random()*H, d:0}); }
@@ -520,20 +639,19 @@
             ctx.stroke();
             chickens.forEach(ch => { ctx.font='30px Arial'; ctx.textAlign='center'; ctx.fillText('🐔', ch.x, ch.y); });
         }
-
         let witch = {x:0, y:0}, potions = [];
         function u13() {
-            if (timer === 1) { sp("Уворачивайся от ведьмы!"); witch.x = W/2; witch.y = 100; }
+            if (timer === 1) { sp(i18n[currentLang].msgs[12]); witch.x = W/2; witch.y = 100; }
             if (timer % 60 === 0) potions.push({x:witch.x, y:witch.y, vx:(Math.random()-.5)*4, vy:Math.random()*3+1});
-            potions.forEach(p => { p.x += p.vx; p.y += p.vy; if (p.y > H) potions.splice(potions.indexOf(p),1); if (Math.hypot(p1.x-p.x,p1.y-p.y)<30) showMsg('💀 Зелье попало!'); if (gMode===2 && Math.hypot(p2.x-p.x,p2.y-p.y)<30) showMsg('💀 Зелье попало!'); });
+            potions.forEach(p => { p.x += p.vx; p.y += p.vy; if (p.y > H) potions.splice(potions.indexOf(p),1); if (!p1.dead && Math.hypot(p1.x-p.x,p1.y-p.y)<30) { p1.dead = true; sp(i18n[currentLang].ghost[4]); } if (gMode===2 && !p2.dead && Math.hypot(p2.x-p.x,p2.y-p.y)<30) { p2.dead = true; sp(i18n[currentLang].ghost[4]); } });
             witch.x += Math.sin(timer/30)*2;
+            checkDead();
         }
         function d13() {
             ctx.fillStyle='#1a1a2e'; ctx.fillRect(0,0,W,H);
             ctx.font='60px Arial'; ctx.textAlign='center'; ctx.fillText('🧙‍♀️', witch.x, witch.y);
             potions.forEach(p => { ctx.font='30px Arial'; ctx.fillText('🧪', p.x, p.y); });
         }
-
         let bacons = [], spawnTimer = 0;
         function u14() {
             if (timer === 1) bacons = [];
@@ -549,6 +667,7 @@
             bacons.forEach(b => { ctx.fillRect(b.x, b.y, 3, 3); });
         }
 
+        initEditor();
         loop();
     </script>
 </body>
