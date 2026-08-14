@@ -4,22 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Роблокс Мини Игры</title>
-    <!-- Подключаем библиотеку для онлайн-игры по сети -->
+    <!-- Подключаем библиотеку для онлайн-игры -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: #1a1a2e; overflow: hidden; font-family: 'Segoe UI', 'Arial', sans-serif; user-select: none; touch-action: none; }
         #gameCanvas { display: block; width: 100vw; height: 100vh; }
 
-        /* Общие экраны */
-        .screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 10; padding: 20px; text-align: center;
-        }
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; padding: 20px; text-align: center; }
         .hidden { display: none !important; }
 
-        /* Главное меню */
         #menu { background: radial-gradient(circle at top, #4a00e0, #8e2de2, #00c6ff); justify-content: flex-start; overflow-y: auto; }
         .title { color: white; font-size: 38px; font-weight: 900; margin-top: 20px; margin-bottom: 20px; text-transform: uppercase; text-shadow: 3px 3px 0px rgba(0,0,0,0.4); animation: bounce 2s infinite; }
         @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -30,7 +24,6 @@
         .btn-text { color: #2c3e50; font-weight: 800; font-size: 18px; }
         .mp-btn { background: #ffd700; color: #2c3e50; margin-bottom: 20px; }
 
-        /* Мультиплеер Лобби */
         #mpLobby { background: linear-gradient(180deg, #0f0c29, #302b63, #24243e); }
         #mpLobby h1 { color: white; font-size: 32px; margin-bottom: 30px; }
         .mp-card { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 300px; margin-bottom: 20px; }
@@ -40,16 +33,13 @@
         .mp-key { background: #ecf0f1; border: none; padding: 15px; font-size: 20px; border-radius: 10px; font-weight: bold; }
         .mp-key:active { background: #bdc3c7; }
         .action-btn { background: #8e2de2; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 15px; font-weight: bold; width: 100%; cursor: pointer; box-shadow: 0 4px 0 #6a1b9a; }
-        .action-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #6a1b9a; }
         .back-btn { background: transparent; color: white; border: 2px solid white; margin-top: 20px; padding: 10px 20px; border-radius: 15px; }
         #roomCodeDisplay { font-size: 50px; font-weight: 900; color: #8e2de2; margin: 20px 0; letter-spacing: 5px; }
         #mpStatus { color: white; margin-top: 10px; font-size: 16px; }
 
-        /* Кнопки UI */
         #musicBtn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); color: white; border: 2px solid white; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; z-index: 15; display: flex; align-items: center; justify-content: center; }
         #exitBtn { position: absolute; top: 15px; right: 15px; background: rgba(231, 76, 60,0.9); color: white; border: 2px solid white; border-radius: 50%; width: 45px; height: 45px; font-size: 22px; z-index: 5; display: none; align-items: center; justify-content: center; }
 
-        /* Сообщения */
         #msgBox { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: white; color: #2c3e50; padding: 30px 40px; border-radius: 25px; text-align: center; z-index: 20; display: none; box-shadow: 0 15px 40px rgba(0,0,0,0.5); border: 4px solid #8e2de2; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); width: 85%; max-width: 320px; }
         #msgBox.show { transform: translate(-50%, -50%) scale(1); }
         #msgBox h1 { font-size: 28px; margin-bottom: 20px; font-weight: 900; }
@@ -60,7 +50,6 @@
 
     <button id="musicBtn" onclick="toggleMusic()">🎵</button>
     
-    <!-- Главное Меню -->
     <div id="menu" class="screen">
         <div class="title">🎮 ИГРЫ</div>
         <button class="game-btn mp-btn" onclick="showLobby()">
@@ -75,7 +64,6 @@
         </div>
     </div>
 
-    <!-- Лобби Мультиплеера -->
     <div id="mpLobby" class="screen hidden">
         <h1>👥 ИГРА ВМЕСТЕ</h1>
         
@@ -92,7 +80,7 @@
             <div class="mp-card">
                 <h2>Твой код:</h2>
                 <div id="roomCodeDisplay">....</div>
-                <p id="mpStatus">Ждем друга...</p>
+                <p id="mpStatus">Подключение к сети...</p>
             </div>
         </div>
 
@@ -121,7 +109,6 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // UI Элементы
         const menu = document.getElementById('menu');
         const mpLobby = document.getElementById('mpLobby');
         const exitBtn = document.getElementById('exitBtn');
@@ -130,10 +117,7 @@
         const musicBtn = document.getElementById('musicBtn');
 
         let W, H, currentGame = null, timer = 0;
-        
-        // Локальный игрок (Красный)
         let me = { x: 0, y: 0, size: 40, speed: 5, moving: false, legSwing: 0, color: '#e74c3c' };
-        // Удаленный игрок (Синий)
         let friend = { x: 0, y: 0, size: 40, moving: false, legSwing: 0, color: '#3498db' };
 
         // --- СЕТЬ (WebRTC) ---
@@ -142,6 +126,16 @@
         let isHost = false;
         let netConnected = false;
         let roomCode = "";
+
+        // Конфиг для обхода NAT (чтобы соединялось в любых сетях)
+        const peerConfig = {
+            config: {
+                'iceServers': [
+                    { url: 'stun:stun.l.google.com:19302' },
+                    { url: 'stun:stun1.l.google.com:19302' }
+                ]
+            }
+        };
 
         function showLobby() {
             menu.classList.add('hidden');
@@ -164,14 +158,18 @@
             roomCode = Math.floor(1000 + Math.random() * 9000).toString();
             document.getElementById('mpChoice').classList.add('hidden');
             document.getElementById('hostForm').classList.remove('hidden');
-            document.getElementById('roomCodeDisplay').innerText = roomCode;
+            document.getElementById('roomCodeDisplay').innerText = "....";
+            document.getElementById('mpStatus').innerText = "Подключение к сети...";
             
-            speak("Скажи другу код: " + roomCode);
+            peer = new Peer('robloxmini-' + roomCode, peerConfig);
             
-            peer = new Peer('robloxmini-' + roomCode);
+            // ПОКА НЕ ПОДКЛЮЧИЛИСЬ К СЕРВЕРУ - КОД НЕ ПОКАЗЫВАЕМ
             peer.on('open', (id) => {
+                document.getElementById('roomCodeDisplay').innerText = roomCode;
                 document.getElementById('mpStatus').innerText = 'Ждем друга...';
+                speak("Скажи другу код: " + roomCode);
             });
+            
             peer.on('connection', (c) => {
                 conn = c;
                 conn.on('open', () => {
@@ -186,7 +184,15 @@
                 conn.on('data', (data) => handleData(data));
                 conn.on('close', () => { alert('Друг вышел!'); exitGame(); netConnected = false; });
             });
-            peer.on('error', (err) => { console.error(err); alert("Ошибка сети. Попробуйте еще раз."); cancelLobby(); });
+            peer.on('error', (err) => { 
+                console.error(err); 
+                if(err.type === 'unavailable-id') {
+                    alert("Ошибка: Комната с таким кодом уже есть. Попробуй еще раз.");
+                } else {
+                    alert("Ошибка сети. Скорее всего, браузер блокирует соединение. Открой игру через сайт с https или в APK.");
+                }
+                cancelLobby(); 
+            });
         }
 
         function typeCode(val) {
@@ -202,19 +208,25 @@
             isHost = false;
             speak("Подключаемся к другу...");
             
-            peer = new Peer();
+            peer = new Peer(peerConfig);
             peer.on('open', (id) => {
                 conn = peer.connect('robloxmini-' + code, {reliable: true});
                 conn.on('open', () => {
                     netConnected = true;
                     mpLobby.classList.add('hidden');
                     speak("Успешно! Ждем выбора игры.");
-                    // Клиент ждет, пока хост выберет игру
                 });
                 conn.on('data', (data) => handleData(data));
                 conn.on('close', () => { alert('Хост закрыл игру!'); exitGame(); netConnected = false; });
             });
-            peer.on('error', (err) => { console.error(err); alert("Игры с таким кодом нет. Проверь код!"); });
+            peer.on('error', (err) => { 
+                console.error(err); 
+                if(err.type === 'peer-unavailable') {
+                    alert("Игры с таким кодом нет. Проверь код или попроси друга создать игру заново.");
+                } else {
+                    alert("Ошибка сети. Браузер блокирует соединение.");
+                }
+            });
         }
 
         function handleData(data) {
@@ -225,10 +237,8 @@
                 friend.x = W/2 + 50; friend.y = H/2;
                 if (!isHost) speak("Игра началась!");
             } else if (data.type === 'state') {
-                // Хост отправляет состояние игры
                 friend.x = data.p.x; friend.y = data.p.y; friend.moving = data.p.m; friend.legSwing = data.p.l;
                 currentGame = data.g;
-                // Синхронизация объектов (упрощенно)
                 if (data.obj) {
                     blocks = data.obj.b || [];
                     monster = data.obj.m || null;
@@ -239,7 +249,6 @@
                     huggy = data.obj.h || { looking: false };
                 }
             } else if (data.type === 'input') {
-                // Клиент отправляет свои нажатия Хосту
                 friend.tx = data.x; friend.ty = data.y;
             } else if (data.type === 'msg') {
                 showMsg(data.text);
@@ -250,9 +259,7 @@
         }
 
         function sendMsgToFriend(text) {
-            if (netConnected && conn && conn.open) {
-                conn.send({ type: 'msg', text: text });
-            }
+            if (netConnected && conn && conn.open) conn.send({ type: 'msg', text: text });
         }
 
         // --- СИНТЕЗАТОР МУЗЫКИ ---
@@ -343,7 +350,6 @@
             if (mode === 5) { speak("Лови вкусное. Не лови гадость!"); foods = []; }
             if (!musicOn) toggleMusic();
 
-            // Отправляем команду другу начать игру
             if (netConnected && isHost && conn && conn.open) {
                 conn.send({ type: 'startGame', mode: mode });
             }
@@ -370,14 +376,11 @@
             if (musicOn) toggleMusic();
         }
 
-        // Главный цикл
         let lastSync = 0;
         function loop() {
             if (currentGame !== null) {
-                // Хост управляет логикой
                 if (isHost || !netConnected) {
                     update();
-                    // Синхронизация с клиентом 20 раз в секунду
                     if (netConnected && Date.now() - lastSync > 50) {
                         lastSync = Date.now();
                         conn.send({ 
@@ -388,7 +391,6 @@
                         });
                     }
                 } else {
-                    // Клиент: обновляет свою позицию локально и отправляет ввод
                     updatePlayer(me);
                     if (Date.now() - lastSync > 50) {
                         lastSync = Date.now();
@@ -404,7 +406,6 @@
             timer++;
             updatePlayer(me);
             
-            // Если онлайн, обновляем позицию друга на основе его ввода
             if (netConnected && friend.tx !== undefined) {
                 let dx = friend.tx - friend.x;
                 let dy = friend.ty - friend.y;
@@ -445,9 +446,8 @@
             if (currentGame === 4) drawMode4();
             if (currentGame === 5) drawMode5();
             
-            // Рисуем игроков
-            if (netConnected) drawPlayer(friend); // Сначала друга
-            drawPlayer(me); // Потом себя (поверх)
+            if (netConnected) drawPlayer(friend);
+            drawPlayer(me);
         }
 
         function drawPlayer(p) {
@@ -456,27 +456,22 @@
             ctx.save(); ctx.translate(p.x, p.y);
             if (p.moving) ctx.rotate(Math.sin(p.legSwing) * 0.1);
             
-            // Ноги (синие/темные)
             ctx.fillStyle = '#2c3e50';
             ctx.fillRect(-15, 10, 12, 20 + (p.moving ? Math.sin(p.legSwing)*5 : 0));
             ctx.fillRect(3, 10, 12, 20 - (p.moving ? Math.sin(p.legSwing)*5 : 0));
             
-            // Туловище (цвет игрока)
             ctx.fillStyle = p.color;
             ctx.fillRect(-20, -15, 40, 35);
             ctx.fillStyle = 'rgba(0,0,0,0.2)';
-            ctx.fillRect(-20, 10, 40, 10); // Пояс
+            ctx.fillRect(-20, 10, 40, 10); 
             
-            // Руки
             ctx.fillStyle = '#f1c27f';
             ctx.fillRect(-25, -10, 5, 15);
             ctx.fillRect(20, -10, 5, 15);
             
-            // Голова
             ctx.fillStyle = '#f1c27f';
             ctx.beginPath(); ctx.arc(0, -25, 18, 0, Math.PI * 2); ctx.fill();
             
-            // Глаза
             ctx.fillStyle = 'white';
             ctx.beginPath(); ctx.arc(-6, -28, 5, 0, Math.PI * 2); ctx.fill();
             ctx.beginPath(); ctx.arc(6, -28, 5, 0, Math.PI * 2); ctx.fill();
@@ -484,7 +479,6 @@
             ctx.beginPath(); ctx.arc(-6, -28, 2, 0, Math.PI * 2); ctx.fill();
             ctx.beginPath(); ctx.arc(6, -28, 2, 0, Math.PI * 2); ctx.fill();
             
-            // Улыбка
             ctx.strokeStyle = 'black'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.arc(0, -20, 8, 0, Math.PI); ctx.stroke();
             ctx.restore();
@@ -525,7 +519,6 @@
                 ctx.strokeStyle = '#d35400'; ctx.lineWidth = 2; ctx.strokeRect(b.x-20, b.y-15, 40, 30);
             });
             if (monster) {
-                // Рисуем Хагги (просто svg не получилось, рисуем фигурами)
                 ctx.fillStyle = '#2a36b1'; ctx.fillRect(monster.x-40, monster.y-60, 80, 120);
                 ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(monster.x-20, monster.y-40, 15, 0, Math.PI*2); ctx.arc(monster.x+20, monster.y-40, 15, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(monster.x-20, monster.y-40, 6, 0, Math.PI*2); ctx.arc(monster.x+20, monster.y-40, 6, 0, Math.PI*2); ctx.fill();
@@ -537,7 +530,6 @@
         let chaser = { x: 100, y: H/2 };
         function updateMode2() {
             if (timer === 1) speak("Беги!");
-            // Медленный монстр (0.01 вместо 0.02)
             chaser.x += (me.x - chaser.x) * 0.01; chaser.y += (me.y - chaser.y) * 0.01;
             if (timer > 3600) showMsg('🎉 Вы убежали!<br>Ничего не получили!');
             if (Math.hypot(chaser.x - me.x, chaser.y - me.y) < 50) showMsg('💀 Тебя поймали!');
@@ -577,7 +569,6 @@
             }
             ctx.font = '60px Arial'; ctx.textAlign = 'center';
             boxes3.forEach(b => { ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.arc(b.x, b.y + 25, 30, 0, Math.PI*2); ctx.fill(); ctx.fillText('📦', b.x, b.y); });
-            // Хагги
             ctx.fillStyle = '#2a36b1'; ctx.fillRect(W/2-40, -60, 80, 120);
             ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(W/2-20, 10, 15, 0, Math.PI*2); ctx.arc(W/2+20, 10, 15, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(W/2-20, 10, 6, 0, Math.PI*2); ctx.arc(W/2+20, 10, 6, 0, Math.PI*2); ctx.fill();
