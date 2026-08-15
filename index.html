@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Mini Games</title>
+<title>Mini Games Ultra</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { background: #1a1a2e; overflow: hidden; font-family: Arial, sans-serif; user-select: none; touch-action: none; }
+body { background: #1a1a2e; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; user-select: none; touch-action: none; }
 #gc { display: block; width: 100vw; height: 100vh; }
 .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; z-index: 10; padding: 20px; overflow-y: auto; }
 .hidden { display: none !important; }
 .title { color: #fff; font-size: 34px; font-weight: 900; margin-top: 20px; margin-bottom: 15px; text-shadow: 3px 3px 0 rgba(0,0,0,.4); text-align: center; }
-.btn-container { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 400px; padding-bottom: 20px; }
+.btn-container { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 450px; padding-bottom: 20px; }
 .gb { background: #fff; border: none; border-radius: 20px; padding: 15px; text-align: left; box-shadow: 0 6px 0 rgba(0,0,0,.3); transition: transform 0.1s; display: flex; align-items: center; cursor: pointer; }
 .gb:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.3); }
 .bi { font-size: 40px; margin-right: 15px; }
@@ -40,12 +40,17 @@ body { background: #1a1a2e; overflow: hidden; font-family: Arial, sans-serif; us
 #score1 { left: 130px; }
 #score2 { right: 80px; }
 #buildBtn { position: absolute; bottom: 40px; right: 160px; background: rgba(231, 76, 60, 0.9); color: white; border: 2px solid white; border-radius: 15px; width: 80px; height: 80px; font-size: 16px; font-weight: 800; z-index: 5; display: none; align-items: center; justify-content: center; box-shadow: 0 4px 0 #c0392b; }
-#editor { background: linear-gradient(180deg, #0f0c29, #302b63, #24243e); color: #fff; }
-.editor-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; max-width: 400px; }
-.color-btn, .hat-btn { width: 50px; height: 50px; border-radius: 10px; border: 3px solid #fff; font-size: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+#editor { background: linear-gradient(180deg, #0f0c29, #302b63, #24243e); color: #fff; overflow-y: auto; }
+.editor-section { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; margin-bottom: 15px; width: 100%; max-width: 450px; }
+.editor-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.color-btn, .style-btn { width: 50px; height: 50px; border-radius: 10px; border: 3px solid #fff; font-size: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: transform 0.1s; }
+.color-btn:active, .style-btn:active { transform: scale(0.9); }
 .selected { border-color: #ffd700; box-shadow: 0 0 15px #ffd700; }
-.editor-label { font-size: 20px; margin-bottom: 10px; }
+.editor-label { font-size: 18px; margin-bottom: 10px; font-weight: 700; text-align: center; }
 .ad-banner { background: linear-gradient(90deg, #f1c40f, #e67e22); color: #2c3e50; padding: 15px; border-radius: 15px; text-align: center; margin-top: 20px; margin-bottom: 20px; font-weight: 700; box-shadow: 0 4px 0 #d35400; border: 2px solid #fff; cursor: pointer; }
+#rhythmBtns { position: absolute; bottom: 0; width: 100%; height: 100px; display: flex; z-index: 5; display: none; }
+.r-btn { flex: 1; background: rgba(255,255,255,0.2); border: 2px solid #fff; color: #fff; font-size: 40px; font-weight: 900; }
+.r-btn.active { background: rgba(255,255,255,0.8); color: #8e2de2; }
 </style>
 </head>
 <body>
@@ -55,44 +60,53 @@ body { background: #1a1a2e; overflow: hidden; font-family: Arial, sans-serif; us
     <button class="lang-btn" onclick="setLang('ru')">🇷🇺 Русский</button>
     <button class="lang-btn" onclick="setLang('en')">🇬🇧 English</button>
     <button class="lang-btn" onclick="setLang('zh')">🇨🇳 中文</button>
-    <button class="lang-btn" onclick="setLang('hi')">🇮🇳 हिन्दी</button>
 </div>
 
 <div id="menu" class="screen hidden">
-    <div class="title" id="menuTitle">🎮 ИГРЫ</div>
+    <div class="title" id="menuTitle">🎮 ИГРЫ ULTRA</div>
     <div class="toggle">
         <button class="tb ta" onclick="setMode(1)" id="mode1Btn">1 ИГРОК</button>
         <button class="tb" onclick="setMode(2)" id="mode2Btn">2 ИГРОКА</button>
     </div>
     <button class="gb" style="background:#ffd700;margin-bottom:15px" onclick="openEditor()">
-        <div class="bi">👕</div><div class="bt" id="editorBtnText">РЕДАКТОР (БЕСПЛАТНО)</div>
+        <div class="bi">👕</div><div class="bt" id="editorBtnText">РЕДАКТОР</div>
     </button>
     <div class="btn-container" id="gameList"></div>
-    <button class="gb" style="background:#2ecc71;margin-bottom:15px" onclick="showIdeaBox()">
-        <div class="bi">💡</div><div class="bt" id="ideaBtnText">ПРЕДЛОЖИТЬ ИДЕЮ</div>
-    </button>
-    <div class="ad-banner" onclick="showIdeaBox()">
+    <div class="ad-banner" onclick="alert('Email: hamstoikltza@gmail.com')">
         <div class="ad-text">📢 ЗДЕСЬ МОГЛА БЫТЬ ВАША РЕКЛАМА 📢</div>
-        <div class="ad-mail">hamstoikltza@gmail.com</div>
     </div>
 </div>
 
 <div id="editor" class="screen hidden">
-    <div class="title" id="editorTitle">👕 РЕДАКТОР</div>
+    <div class="title" id="editorTitle">🎭 РЕДАКТОР</div>
     <div class="toggle">
         <button class="tb ta" onclick="setEditPlayer(1)" id="ep1">ИГРОК 1</button>
         <button class="tb" onclick="setEditPlayer(2)" id="ep2">ИГРОК 2</button>
     </div>
-    <div class="editor-label" id="colorLabel">Цвет рубашки:</div>
-    <div class="editor-row" id="colorsRow"></div>
-    <div class="editor-label" id="hatLabel">Головной убор:</div>
-    <div class="editor-row" id="hatsRow"></div>
-    <button class="gb" style="background:#2ecc71;margin-top:20px" onclick="closeEditor()">
+    
+    <div class="editor-section">
+        <div class="editor-label" id="colorLabel">Цвет одежды:</div>
+        <div class="editor-row" id="colorsRow"></div>
+    </div>
+    <div class="editor-section">
+        <div class="editor-label" id="hatLabel">Головной убор:</div>
+        <div class="editor-row" id="hatsRow"></div>
+    </div>
+    <div class="editor-section">
+        <div class="editor-label" id="eyesLabel">Глаза:</div>
+        <div class="editor-row" id="eyesRow"></div>
+    </div>
+    <div class="editor-section">
+        <div class="editor-label" id="accLabel">Аксессуары:</div>
+        <div class="editor-row" id="accsRow"></div>
+    </div>
+    
+    <button class="gb" style="background:#2ecc71;margin-top:20px;margin-bottom:40px" onclick="closeEditor()">
         <div class="bi">✅</div><div class="bt" id="saveBtnText" style="color:white">СОХРАНИТЬ</div>
     </button>
 </div>
 
-<button id="langBtn" onclick="setLang(currentLang==='ru'?'en':currentLang==='en'?'zh':currentLang==='zh'?'hi':'ru')">🌐</button>
+<button id="langBtn" onclick="setLang(currentLang==='ru'?'en':currentLang==='en'?'zh':'ru')">🌐</button>
 <div id="score1">P1: 0</div><div id="score2">P2: 0</div>
 <button id="ex" onclick="exitGame()">✖</button>
 <button id="mbtn" onclick="toggleMusic()">🔇</button>
@@ -100,77 +114,78 @@ body { background: #1a1a2e; overflow: hidden; font-family: Arial, sans-serif; us
 <div id="joy1"><div class="jb"></div><div class="js"></div></div>
 <div id="joy2"><div class="jb"></div><div class="js"></div></div>
 <button id="buildBtn" onclick="toggleBuild()">СТРОИТЬ 🧱</button>
+<div id="rhythmBtns">
+    <button class="r-btn" onclick="rhythmHit(0)">◀</button>
+    <button class="r-btn" onclick="rhythmHit(1)">▼</button>
+    <button class="r-btn" onclick="rhythmHit(2)">▲</button>
+    <button class="r-btn" onclick="rhythmHit(3)">▶</button>
+</div>
 
 <div id="msgBox"><h1 id="msgText"></h1><button onclick="exitGame()" id="msgBtn">В МЕНЮ</button></div>
-<div id="ideaBox"><h1 id="ideaTitle">💡 ИДЕЯ</h1><div class="idea-step" id="ideaStep1">1. Напиши на почту:</div><div class="idea-mail">hamstoikltza@gmail.com</div><div class="idea-step" id="ideaStep2">2. Опиши идею и жди!</div><button onclick="closeIdeaBox()">ОК</button></div>
+<div id="ideaBox"><h1 id="ideaTitle">💡 ИДЕЯ</h1><div class="idea-step">1. Напиши на почту:</div><div class="idea-mail">hamstoikltza@gmail.com</div><div class="idea-step">2. Опиши идею и жди!</div><button onclick="closeIdeaBox()">ОК</button></div>
 
 <script>
 let W, H, cg=0, t=0, gMode=1, currentLang='ru', editPlayer=1;
-let custom1 = {color:'#e74c3c', hat:'none'}, custom2 = {color:'#3498db', hat:'none'};
-let p1 = {x:100, y:0, vx:0, vy:0, ls:0, a:0, mt:0, score:0, carry:null, honey:0, dead:false, boost:0, building:false, inCar:false, money:0, lvl:0, hp:100};
-let p2 = {x:200, y:0, vx:0, vy:0, ls:0, a:0, mt:0, score:0, carry:null, honey:0, dead:false, boost:0, building:false, inCar:false, money:0, lvl:0, hp:100};
+let p1 = {x:100, y:0, vx:0, vy:0, ls:0, a:0, mt:0, score:0, carry:null, honey:0, dead:false, boost:0, building:false, inCar:false, money:0, lvl:1, hp:100, vy_park:0};
+let p2 = {x:200, y:0, vx:0, vy:0, ls:0, a:0, mt:0, score:0, carry:null, honey:0, dead:false, boost:0, building:false, inCar:false, money:0, lvl:1, hp:100, vy_park:0};
 let j1 = {active:false, bx:90, by:0, dx:0, dy:0, id:null}, j2 = {active:false, bx:0, by:0, dx:0, dy:0, id:null};
+
+let custom1 = {color:'#e74c3c', hat:'none', eyes:'normal', acc:'none'};
+let custom2 = {color:'#3498db', hat:'none', eyes:'normal', acc:'none'};
 
 const c = document.getElementById('gc'), x = c.getContext('2d');
 const menu = document.getElementById('menu'), editor = document.getElementById('editor'), exitBtn = document.getElementById('ex');
 const msgBox = document.getElementById('msgBox'), msgText = document.getElementById('msgText'), msgBtn = document.getElementById('msgBtn');
-const ideaBox = document.getElementById('ideaBox'), joy1Div = document.getElementById('joy1'), joy2Div = document.getElementById('joy2');
+const joy1Div = document.getElementById('joy1'), joy2Div = document.getElementById('joy2');
 const score1Div = document.getElementById('score1'), score2Div = document.getElementById('score2'), mbtn = document.getElementById('mbtn');
 const gameList = document.getElementById('gameList'), langScreen = document.getElementById('langScreen'), buildBtn = document.getElementById('buildBtn');
+const rhythmBtns = document.getElementById('rhythmBtns');
 
 const i18n = {
-    ru: {title:"🎮 ИГРЫ", p1:"1 ИГРОК", p2:"2 ИГРОКА", editor:"РЕДАКТОР (БЕСПЛАТНО)", backMenu:"В МЕНЮ", editorTitle:"👕 РЕДАКТОР", color:"Цвет рубашки:", hat:"Головной убор:", save:"СОХРАНИТЬ", games:["Дом от Хагги","Убеги от монстра","Прятки Хагги","Больница","Вкусно или Туалет","Ресторан Еды","Мутант Кола","Мишка Берлога","Аномалия Зубы","Сим Ютубера","Эдит Хомяки","Рисование Кур","Белая Ведьма","1000 Беконов","Защита Матрицы","Паркур Майнкрафт","Симулятор Жизни","Питомцы","Стройка и Работа","Аниме RPG","Арена Шар","RPG Арена","Полоса Препятствий"], msgs:["Строй дом!","Беги!","Прятки!","Лечи животных!","Лови еду!","Ресторан!","Пей колу!","Собери мед!","Аномалия зубы!","Снимай видео!","Эдит хомяки!","Рисуй кур!","Уворачивайся от ведьмы!","1000 беконов!","Строй базу и защищай Матрицу!","Прыгай по блокам!","Живи, работай, води тачки!","Лови и корми питомцев!","Строй и зарабатывай!","Ищи фрукты, бей боссов!","Отбивай шар рывком!","Выживай на арене!","Пройди полосу!"], win:["🎉 Победа!","🎉 Убежали!","🎉 Сбежали!","🎉 Выжили!"], lose:"💀 ВЫ ПРОИГРАЛИ!", ghost:["Ой!","Поймали!","Заметили!","Фу!","Бах!","Диз!","Зомби!"], ideaBtn:"ПРЕДЛОЖИТЬ ИДЕЮ", ideaTitle:"💡 ИДЕЯ", step1:"1. Напиши на почту:", step2:"2. Опиши идею и жди!"},
-    en: {title:"🎮 GAMES", p1:"1 PLAYER", p2:"2 PLAYERS", editor:"EDITOR (FREE)", backMenu:"MAIN MENU", editorTitle:"👕 EDITOR", color:"Shirt color:", hat:"Hat:", save:"SAVE", games:["House from Huggy","Run from Monster","Huggy Hideout","Hospital","Yummy or Toilet","Food Restaurant","Mutant Cola","Bear Den","Anomaly Teeth","Youtuber Sim","Hamster Edit","Chicken Draw","White Witch","1000 Bacons","Matrix Defense","Minecraft Parkour","Life Sim","Pets","Builder Sim","Anime RPG","Ball Arena","RPG Arena","Obstacle Course"], msgs:["Build a house!","Run!","Hide and seek!","Heal animals!","Catch food!","Restaurant!","Drink cola!","Collect honey!","Anomaly teeth!","Shoot video!","Hamster edit!","Draw chickens!","Dodge the witch!","1000 bacons!","Build base and defend Matrix!","Jump on blocks!","Live, work, drive!","Catch and feed pets!","Build and earn!","Find fruits, beat bosses!","Hit the ball with dash!","Survive the arena!","Pass the course!"], win:["🎉 Victory!","🎉 Escaped!","🎉 Escaped!","🎉 Survived!"], lose:"💀 YOU LOST!", ghost:["Ouch!","Caught!","Spotted!","Yuck!","Boom!","Dislike!","Zombie!"], ideaBtn:"SUGGEST IDEA", ideaTitle:"💡 IDEA", step1:"1. Write to email:", step2:"2. Describe idea and wait!"},
-    zh: {title:"🎮 游戏", p1:"1 玩家", p2:"2 玩家", editor:"编辑器 (免费)", backMenu:"主菜单", editorTitle:"👕 编辑器", color:"衬衫颜色:", hat:"帽子:", save:"保存", games:["逃离哈吉","跑离怪物","哈吉捉迷藏","医院","美味或厕所","食品餐厅","突变可乐","熊窝","异常牙齿","油管模拟","仓鼠编辑","画鸡","白女巫","1000 培根","矩阵防御","我的世界跑酷","生活模拟","宠物","建造模拟","动漫RPG","球竞技场","RPG竞技场","障碍赛"], msgs:["建房子!","跑!","捉迷藏!","治疗动物!","接食物!","餐厅!","喝可乐!","收集蜂蜜!","异常牙齿!","拍视频!","仓鼠编辑!","画鸡!","躲开女巫!","1000 培根!","建立基地并保护矩阵!","在方块上跳!","生活，工作，开车!","抓住并喂养宠物!","建造并赚钱!","找水果，打Boss!","用冲刺击球!","在竞技场生存!","通过赛道!"], win:["🎉 胜利!","🎉 逃跑了!","🎉 逃脱了!","🎉 活下来了!"], lose:"💀 你输了!", ghost:["哎呀!","抓住了!","发现了!","呸!","砰!","差!","僵尸!"], ideaBtn:"建议一个想法", ideaTitle:"💡 想法", step1:"1. 写电子邮件:", step2:"2. 描述想法并等待!"},
-    hi: {title:"🎮 खेल", p1:"1 खिलाड़ी", p2:"2 खिलाड़ी", editor:"संपादक (मुफ़त)", backMenu:"मुख्य मेनू", editorTitle:"👕 संपादक", color:"शर्ट का रंग:", hat:"टोपी:", save:"सहेजें", games:["हगी से घर","राक्षस से भागो","हगी छुपना","अस्पताल","स्वादिष्ट या शौचालय","रेस्तरां","म्यूटेंट कोला","भालू मांद","विसंगति दांत","यूट्यूबर सिम","हैम्स्टर संपादन","मुर्गी चित्र","सफ़ेद डायन","1000 बेकन","मैट्रिक्स रक्षा","पार्क हिंदी","जीवन सिम","पालतू जानवर","निर्माण सिम","एनीमे RPG","बॉल एरेना","RPG एरेना","बाधा कौर्स"], msgs:["घर बनाओ!","भागो!","छुपना!","जानवरों का इलाज करो!","खाना पकड़ो!","रेस्टोरेंट!","कोला पियो!","शहद इकट्ठा करो!","असामान्य दांत!","वीडियो बनाओ!","हैम्स्टर संपादन!","मुर्गी बनाओ!","डायन से बचो!","1000 बेकन!","बेस बनाओ और मैट्रिक्स की रक्षा करो!","ब्लॉक पर कूदो!","जियो, काम करो, गाड़ी चलाओ!","पालतू जानवर पकड़ो!","बनाओ और कमाओ!","फल खोजो, बॉस को मारो!","डैश से गेंद मारो!","एरेना में जीवित रहो!","कोर्स पास करो!"], win:["🎉 जीत!","🎉 भाग गए!","🎉 बच गए!","🎉 जीवित रहे!"], lose:"💀 आप हार गए!", ghost:["अरे!","पकड़ा गया!","देखा गया!","छी!","धमाका!","नापसंद!","ज़ॉम्बी!"], ideaBtn:"विचार सुझाएं", ideaTitle:"💡 विचार", step1:"1. ईमेल पर लिखें:", step2:"2. विचार का वर्णन करें और प्रतीक्षा करें!"}
+    ru: {title:"🎮 ИГРЫ ULTRA", p1:"1 ИГРОК", p2:"2 ИГРОКА", editor:"РЕДАКТОР ПЕРСОНАЖА", backMenu:"В МЕНЮ", editorTitle:"🎭 РЕДАКТОР", color:"Цвет одежды:", hat:"Головной убор:", eyes:"Глаза:", acc:"Аксессуары:", save:"СОХРАНИТЬ", games:["Дом от Хагги","Убеги от монстра","Прятки Хагги","Больница","Вкусно или Туалет","Ресторан Еды","Мутант Кола","Мишка Берлога","Аномалия Зубы","Сим Ютубера","Эдит Хомяки","Рисование Кур","Белая Ведьма","1000 Беконов","Защита Матрицы","Паркур Майнкрафт","Симулятор Жизни","Питомцы","Стройка и Работа","Аниме RPG","Космо Дрон","RPG Арена","Грибной Сбор","Дневной Свет","Ритм Бит","Нейро Даш"], msgs:["Строй дом!","Беги!","Прятки!","Лечи животных!","Лови еду!","Ресторан!","Пей колу!","Собери мед!","Аномалия зубы!","Снимай видео!","Эдит хомяки!","Рисуй кур!","Уворачивайся от ведьмы!","1000 беконов!","Строй базу и защищай Матрицу!","Прыгай по блокам!","Живи, работай, води тачки!","Лови и корми питомцев!","Строй и зарабатывай!","Ищи фрукты, бей боссов!","Стреляй по НЛО!","Выживай на арене!","Собери грибы, избегай монстров!","Собери свет до ночи!","Попади в ритм!","Уворачивайся в космосе!"], win:["🎉 Победа!","🎉 Убежали!","🎉 Сбежали!","🎉 Выжили!"], lose:"💀 ВЫ ПРОИГРАЛИ!", ghost:["Ой!","Поймали!","Заметили!","Фу!","Бах!","Диз!","Зомби!"]},
+    en: {title:"🎮 GAMES ULTRA", p1:"1 PLAYER", p2:"2 PLAYERS", editor:"CHARACTER EDITOR", backMenu:"MAIN MENU", editorTitle:"🎭 EDITOR", color:"Clothes color:", hat:"Hat:", eyes:"Eyes:", acc:"Accessories:", save:"SAVE", games:["House from Huggy","Run from Monster","Huggy Hideout","Hospital","Yummy or Toilet","Food Restaurant","Mutant Cola","Bear Den","Anomaly Teeth","Youtuber Sim","Hamster Edit","Chicken Draw","White Witch","1000 Bacons","Matrix Defense","Minecraft Parkour","Life Sim","Pets","Builder Sim","Anime RPG","Space Drone","RPG Arena","Mushroom Hunter","Daylight","Rhythm Beat","Neuro Dash"], msgs:["Build a house!","Run!","Hide and seek!","Heal animals!","Catch food!","Restaurant!","Drink cola!","Collect honey!","Anomaly teeth!","Shoot video!","Hamster edit!","Draw chickens!","Dodge the witch!","1000 bacons!","Build base and defend Matrix!","Jump on blocks!","Live, work, drive!","Catch and feed pets!","Build and earn!","Find fruits, beat bosses!","Shoot the UFOs!","Survive the arena!","Collect mushrooms, avoid monsters!","Collect light before night!","Hit the rhythm!","Dodge in space!"], win:["🎉 Victory!","🎉 Escaped!","🎉 Escaped!","🎉 Survived!"], lose:"💀 YOU LOST!", ghost:["Ouch!","Caught!","Spotted!","Yuck!","Boom!","Dislike!","Zombie!"]},
+    zh: {title:"🎮 游戏 ULTRA", p1:"1 玩家", p2:"2 玩家", editor:"角色编辑器", backMenu:"主菜单", editorTitle:"🎭 编辑器", color:"衣服颜色:", hat:"帽子:", eyes:"眼睛:", acc:"配件:", save:"保存", games:["逃离哈吉","跑离怪物","哈吉捉迷藏","医院","美味或厕所","食品餐厅","突变可乐","熊窝","异常牙齿","油管模拟","仓鼠编辑","画鸡","白女巫","1000 培根","矩阵防御","我的世界跑酷","生活模拟","宠物","建造模拟","动漫RPG","太空无人机","RPG竞技场","蘑菇猎人","日光","节奏节拍","神经冲刺"], msgs:["建房子!","跑!","捉迷藏!","治疗动物!","接食物!","餐厅!","喝可乐!","收集蜂蜜!","异常牙齿!","拍视频!","仓鼠编辑!","画鸡!","躲开女巫!","1000 培根!","建立基地并保护矩阵!","在方块上跳!","生活，工作，开车!","抓住并喂养宠物!","建造并赚钱!","找水果，打Boss!","射击UFO!","在竞技场生存!","收集蘑菇，躲避怪物!","在夜晚前收集光!","跟上节奏!","在太空中躲避!"], win:["🎉 胜利!","🎉 逃跑了!","🎉 逃脱了!","🎉 活下来了!"], lose:"💀 你输了!", ghost:["哎呀!","抓住了!","发现了!","呸!","砰!","差!","僵尸!"]}
 };
 const colors = [{id:'#e74c3c'},{id:'#3498db'},{id:'#2ecc71'},{id:'#f1c40f'},{id:'#9b59b6'},{id:'#e67e22'},{id:'#1abc9c'},{id:'#e84393'}];
-const hats = [{id:'none'},{id:'🧢'},{id:'🎩'},{id:'🎓'},{id:'🪖'},{id:'🐰'},{id:'👑'},{id:'💎'},{id:'🦸‍♂️'}];
+const hats = [{id:'none', txt:'❌'}, {id:'cap', txt:'🧢'}, {id:'top', txt:'🎩'}, {id:'crown', txt:'👑'}, {id:'helm', txt:'🪖'}];
+const eyesStyles = [{id:'normal', txt:'👀'}, {id:'angry', txt:'😠'}, {id:'cool', txt:'😎'}, {id:'cute', txt:'🥺'}];
+const accs = [{id:'none', txt:'❌'}, {id:'cape', txt:'🦸'}, {id:'wings', txt:'🧚'}, {id:'phones', txt:'🎧'}];
 
 function setLang(lang) {
     currentLang = lang; const t = i18n[lang];
     document.getElementById('menuTitle').innerText = t.title; document.getElementById('mode1Btn').innerText = t.p1; document.getElementById('mode2Btn').innerText = t.p2;
     document.getElementById('editorBtnText').innerText = t.editor; document.getElementById('editorTitle').innerText = t.editorTitle;
-    document.getElementById('colorLabel').innerText = t.color; document.getElementById('hatLabel').innerText = t.hat; document.getElementById('saveBtnText').innerText = t.save;
-    msgBtn.innerText = t.backMenu; document.getElementById('ideaBtnText').innerText = t.ideaBtn; document.getElementById('ideaTitle').innerText = t.ideaTitle;
-    document.getElementById('ideaStep1').innerText = t.step1; document.getElementById('ideaStep2').innerText = t.step2;
+    document.getElementById('colorLabel').innerText = t.color; document.getElementById('hatLabel').innerText = t.hat; document.getElementById('eyesLabel').innerText = t.eyes; document.getElementById('accLabel').innerText = t.acc;
+    document.getElementById('saveBtnText').innerText = t.save; msgBtn.innerText = t.backMenu;
     
     gameList.innerHTML = '';
-    const icons = ['🏠','🏃','🙈','🏥','🍔','🛵','🥤','🐻','🛏️','🎥','🐹','🎨','🧙‍♀️','🥓','🛡️','🧱','🏙️','🐾','🏗️','🏴‍☠️','⚡','⚔️','🧱'];
+    const icons = ['🏠','🏃','🙈','🏥','🍔','🛵','🥤','🐻','🛏️','🎥','🐹','🎨','🧙‍♀️','🥓','🛡️','🧱','🏙️','🐾','🏗️','🏴‍☠️','🛸','⚔️','🍄','☀️','🎵','🚀'];
     t.games.forEach((g, i) => { let btn = document.createElement('button'); btn.className = 'gb'; btn.onclick = () => startGame(i+1); btn.innerHTML = `<div class="bi">${icons[i]}</div><div class="bt">${g}</div>`; gameList.appendChild(btn); });
     
     if (cg === 0) { langScreen.classList.add('hidden'); menu.classList.remove('hidden'); }
 }
-function showIdeaBox() { ideaBox.style.display = 'block'; setTimeout(() => ideaBox.classList.add('show'), 10); }
-function closeIdeaBox() { ideaBox.classList.remove('show'); setTimeout(() => ideaBox.style.display = 'none', 300); }
-
 function setEditPlayer(n) { editPlayer = n; document.getElementById('ep1').classList.toggle('ta', n===1); document.getElementById('ep2').classList.toggle('ta', n===2); initEditor(); }
 function initEditor() {
-    const cRow = document.getElementById('colorsRow'), hRow = document.getElementById('hatsRow'); cRow.innerHTML = ''; hRow.innerHTML = '';
-    colors.forEach(c => { let b = document.createElement('div'); b.className = 'color-btn' + ((editPlayer===1 ? custom1.color : custom2.color) === c.id ? ' selected' : ''); b.style.background = c.id; b.onclick = () => { if(editPlayer===1) custom1.color=c.id; else custom2.color=c.id; initEditor(); }; cRow.appendChild(b); });
-    hats.forEach(h => { let b = document.createElement('div'); b.className = 'hat-btn' + ((editPlayer===1 ? custom1.hat : custom2.hat) === h.id ? ' selected' : ''); b.innerText = h.id === 'none' ? '❌' : h.id; b.onclick = () => { if(editPlayer===1) custom1.hat=h.id; else custom2.hat=h.id; initEditor(); }; hRow.appendChild(b); });
+    const cRow = document.getElementById('colorsRow'), hRow = document.getElementById('hatsRow'), eRow = document.getElementById('eyesRow'), aRow = document.getElementById('accsRow');
+    cRow.innerHTML = ''; hRow.innerHTML = ''; eRow.innerHTML = ''; aRow.innerHTML = '';
+    let curr = editPlayer===1 ? custom1 : custom2;
+    
+    colors.forEach(c => { let b = document.createElement('div'); b.className = 'color-btn' + (curr.color === c.id ? ' selected' : ''); b.style.background = c.id; b.onclick = () => { curr.color=c.id; initEditor(); }; cRow.appendChild(b); });
+    hats.forEach(h => { let b = document.createElement('div'); b.className = 'style-btn' + (curr.hat === h.id ? ' selected' : ''); b.innerText = h.txt; b.onclick = () => { curr.hat=h.id; initEditor(); }; hRow.appendChild(b); });
+    eyesStyles.forEach(e => { let b = document.createElement('div'); b.className = 'style-btn' + (curr.eyes === e.id ? ' selected' : ''); b.innerText = e.txt; b.onclick = () => { curr.eyes=e.id; initEditor(); }; eRow.appendChild(b); });
+    accs.forEach(a => { let b = document.createElement('div'); b.className = 'style-btn' + (curr.acc === a.id ? ' selected' : ''); b.innerText = a.txt; b.onclick = () => { curr.acc=a.id; initEditor(); }; aRow.appendChild(b); });
 }
-function openEditor() { menu.classList.add('hidden'); editor.classList.remove('hidden'); }
+function openEditor() { menu.classList.add('hidden'); editor.classList.remove('hidden'); initEditor(); }
 function closeEditor() { editor.classList.add('hidden'); menu.classList.remove('hidden'); }
 
-let ac=null, mOn=false, mInt=null, mStep=0, audioEl=null;
+let ac=null, mOn=false, mInt=null, mStep=0;
 function toggleMusic() {
     if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
     if(ac.state === 'suspended') ac.resume();
     mOn = !mOn;
     mbtn.innerHTML = mOn ? "🔊" : "🔇";
     mbtn.style.background = mOn ? "rgba(46,204,113,.9)" : "rgba(0,0,0,.6)";
-    
-    if(mOn) {
-        if(!audioEl) { audioEl = new Audio('music.mp3'); audioEl.loop = true; }
-        audioEl.play().catch(e => {
-            if(mInt) clearInterval(mInt);
-            mInt = setInterval(musicTick, 200);
-        });
-    } else {
-        if(audioEl) audioEl.pause();
-        if(mInt) clearInterval(mInt);
-    }
+    if(mOn) { if(!mInt) mInt = setInterval(musicTick, 200); } else { if(mInt) clearInterval(mInt); mInt = null; }
 }
 function musicTick() { if(!mOn || !ac) return; pNoise(0.05, 0.03); let s = mStep % 8; if(s===0 || s===4) pNote(60, 0.15, 'sine', 0.3); if(s===2 || s===6) pNoise(0.1, 0.1); pNote([262,330,392,523,494,392,330,262][s], 0.2, 'square', 0.08); if(s%2===0) pNote([131,165,196,262][s/2], 0.3, 'triangle', 0.06); mStep++; }
 function pNote(freq, duration, type='square', volume=0.1) { if(!ac || !mOn) return; let osc = ac.createOscillator(), gain = ac.createGain(); osc.type = type; osc.frequency.value = freq; gain.gain.setValueAtTime(volume, ac.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime+duration); osc.connect(gain); gain.connect(ac.destination); osc.start(); osc.stop(ac.currentTime+duration); }
@@ -184,15 +199,20 @@ function sp(v) {
         if('speechSynthesis' in window){
             speechSynthesis.cancel();
             let u = new SpeechSynthesisUtterance(v);
-            const langMap = { ru: 'ru-RU', en: 'en-US', zh: 'zh-CN', hi: 'hi-IN' };
+            const langMap = { ru: 'ru-RU', en: 'en-US', zh: 'zh-CN' };
             u.lang = langMap[currentLang] || 'ru-RU';
             u.rate = 1.1;
+            const voices = speechSynthesis.getVoices();
+            const nativeVoice = voices.find(v => v.lang === u.lang);
+            if(nativeVoice) u.voice = nativeVoice;
             speechSynthesis.speak(u);
         }
     } catch(e){}
 }
+if('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => {};
 
-function setMode(n) { gMode = n; document.querySelectorAll('.tb').forEach((b,i) => b.classList.toggle('ta', i === n-1)); }
+function setMode(n) { gMode = n; document.querySelectorAll('.toggle .tb').forEach((b,i) => { if(i<2) b.classList.toggle('ta', i === n-1); }); }
+
 function handleTS(e) { e.preventDefault(); for(let i=0; i<e.changedTouches.length; i++){ let t = e.changedTouches[i]; if(t.clientX < W/2 && j1.id === null){ j1.id = t.identifier; j1.active = true; j1.dx = t.clientX - j1.bx; j1.dy = t.clientY - j1.by; let d = Math.hypot(j1.dx, j1.dy); if(d>40){ j1.dx=(j1.dx/d)*40; j1.dy=(j1.dy/d)*40; } joy1Div.children[1].style.transform = `translate(${j1.dx}px, ${j1.dy}px)`; } else if(t.clientX >= W/2 && j2.id === null && gMode === 2){ j2.id = t.identifier; j2.active = true; j2.dx = t.clientX - j2.bx; j2.dy = t.clientY - j2.by; let d = Math.hypot(j2.dx, j2.dy); if(d>40){ j2.dx=(j2.dx/d)*40; j2.dy=(j2.dy/d)*40; } joy2Div.children[1].style.transform = `translate(${j2.dx}px, ${j2.dy}px)`; } } }
 function handleTM(e) { e.preventDefault(); for(let i=0; i<e.changedTouches.length; i++){ let t = e.changedTouches[i]; if(t.identifier === j1.id){ j1.dx = t.clientX - j1.bx; j1.dy = t.clientY - j1.by; let d = Math.hypot(j1.dx, j1.dy); if(d>40){ j1.dx=(j1.dx/d)*40; j1.dy=(j1.dy/d)*40; } joy1Div.children[1].style.transform = `translate(${j1.dx}px, ${j1.dy}px)`; } else if(t.identifier === j2.id){ j2.dx = t.clientX - j2.bx; j2.dy = t.clientY - j2.by; let d = Math.hypot(j2.dx, j2.dy); if(d>40){ j2.dx=(j2.dx/d)*40; j2.dy=(j2.dy/d)*40; } joy2Div.children[1].style.transform = `translate(${j2.dx}px, ${j2.dy}px)`; } } }
 function handleTE(e) { e.preventDefault(); for(let i=0; i<e.changedTouches.length; i++){ let t = e.changedTouches[i]; if(t.identifier === j1.id){ j1.active=false; j1.dx=0; j1.dy=0; j1.id=null; joy1Div.children[1].style.transform='translate(0,0)'; } else if(t.identifier === j2.id){ j2.active=false; j2.dx=0; j2.dy=0; j2.id=null; joy2Div.children[1].style.transform='translate(0,0)'; } } }
@@ -205,13 +225,14 @@ function startGame(n) {
     cg = n; menu.classList.add('hidden'); exitBtn.style.display = 'flex'; t = 0;
     joy1Div.style.display = 'block'; score1Div.style.display = 'block';
     if(gMode === 2){ joy2Div.style.display = 'block'; score2Div.style.display = 'block'; } else { joy2Div.style.display = 'none'; score2Div.style.display = 'none'; }
-    p1.x = W/2-50; p1.y = H/2; p1.score = 0; p1.carry = null; p1.mt = 0; p1.honey = 0; p1.dead = false; p1.boost = 0; p1.building = false; p1.inCar = false; p1.money = 0; p1.lvl = 1; p1.hp = 100;
-    p2.x = W/2+50; p2.y = H/2; p2.score = 0; p2.carry = null; p2.mt = 0; p2.honey = 0; p2.dead = false; p2.boost = 0; p2.building = false; p2.inCar = false; p2.money = 0; p2.lvl = 1; p2.hp = 100;
+    p1.x = W/2-50; p1.y = H/2; p1.score = 0; p1.carry = null; p1.mt = 0; p1.honey = 0; p1.dead = false; p1.boost = 0; p1.building = false; p1.inCar = false; p1.money = 0; p1.lvl = 1; p1.hp = 100; p1.vy_park = 0;
+    p2.x = W/2+50; p2.y = H/2; p2.score = 0; p2.carry = null; p2.mt = 0; p2.honey = 0; p2.dead = false; p2.boost = 0; p2.building = false; p2.inCar = false; p2.money = 0; p2.lvl = 1; p2.hp = 100; p2.vy_park = 0;
     msgBox.classList.remove('show'); msgBox.style.display = 'none';
     if(!mOn) toggleMusic();
     if(n==15) buildBtn.style.display = 'flex'; else buildBtn.style.display = 'none';
+    if(n==25) rhythmBtns.style.display = 'flex'; else rhythmBtns.style.display = 'none';
     
-    if(n<=23) sp(i18n[currentLang].msgs[n-1]);
+    if(n<=26) sp(i18n[currentLang].msgs[n-1]);
     
     if(n===1){ blocks=[]; monster=null; }
     else if(n===3){ huggy={l:false}; huggyTimer=0; boxes3=[]; for(let i=0; i<5; i++) boxes3.push({x:100+Math.random()*(W-200), y:100+Math.random()*(H-200)}); }
@@ -220,30 +241,36 @@ function startGame(n) {
     else if(n===8){ coins_arr=[]; home={x:W/2, y:H-150, level:0}; }
     else if(n===14){ bacons=[]; spawnTimer=0; }
     else if(n===15){ zombies=[]; boosts=[]; bullets=[]; matrix={x:W/2, y:H/2, hp:1000}; fortBlocks=[]; trees=[]; zombieWave=1; zombieSpawnTimer=0; }
-    else if(n===16){ parkourBlocks=[]; parkourScroll=0; parkourScore=0; genParkour(); p1.x=W/2; p1.y=H-100; p2.x=W/2+50; p2.y=H-100; }
-    // --- ИНИЦИАЛИЗАЦИЯ 7 НОВЫХ ИГР ---
-    else if(n===17){ lifeHouses=[]; lifeCars=[]; lifeNPCs=[]; for(let i=0;i<3;i++) lifeHouses.push({x:100+i*200, y:100, bought:false}); for(let i=0;i<2;i++) lifeCars.push({x:200+i*200, y:H-200, parked:true}); for(let i=0;i<3;i++) lifeNPCs.push({x:300+i*100, y:H/2+i*50, text:'...'}); } // 17: Сим Жизни
-    else if(n===18){ pets=[]; petFood=[]; petHome={x:W/2, y:H-150, level:0}; for(let i=0;i<5;i++) pets.push({x:Math.random()*W, y:Math.random()*H, t:['🐶','🐱','🐰'][Math.floor(Math.random()*3)], caught:false}); for(let i=0;i<5;i++) petFood.push({x:Math.random()*W, y:Math.random()*H}); } // 18: Питомцы
-    else if(n===19){ buildBlocks=[]; buildJobs=[]; for(let i=0;i<3;i++) buildJobs.push({x:100+i*150, y:200, type:'brick'}); } // 19: Стройка
-    else if(n===20){ devilFruits=[]; animeBoss={x:W-200, y:200, hp:100, maxHp:100}; for(let i=0;i<3;i++) devilFruits.push({x:Math.random()*W, y:Math.random()*H, taken:false}); } // 20: Аниме RPG
-    else if(n===21){ arenaBall={x:W/2, y:H/2, vx:5, vy:5}; } // 21: Арена Шар
-    else if(n===22){ rpgEnemies=[]; rpgSpawnTimer=0; rpgWave=1; } // 22: RPG Арена
-    else if(n===23){ obstacles=[]; genObstacles(); p1.x=50; p1.y=H-100; p2.x=50; p2.y=H-200; obstacleTime=60; } // 23: Полоса
+    else if(n===16){ parkourBlocks=[]; parkourScroll=0; parkourScore=0; genParkour(); p1.x=W/2; p1.y=H-100; p2.x=W/2+50; p2.y=H-100; p1.vy_park = -10; p2.vy_park = -10; }
+    else if(n===17){ lifeHouses=[]; lifeCars=[]; lifeNPCs=[]; for(let i=0;i<3;i++) lifeHouses.push({x:100+i*200, y:100, bought:false}); for(let i=0;i<2;i++) lifeCars.push({x:200+i*200, y:H-200, parked:true}); for(let i=0;i<3;i++) lifeNPCs.push({x:300+i*100, y:H/2+i*50, text:'...'}); } 
+    else if(n===18){ pets=[]; petFood=[]; petHome={x:W/2, y:H-150, level:0}; for(let i=0;i<5;i++) pets.push({x:Math.random()*W, y:Math.random()*H, t:['🐶','🐱','🐰'][Math.floor(Math.random()*3)], caught:false}); for(let i=0;i<5;i++) petFood.push({x:Math.random()*W, y:Math.random()*H}); } 
+    else if(n===19){ buildBlocks=[]; buildJobs=[]; for(let i=0;i<3;i++) buildJobs.push({x:100+i*150, y:200, type:'brick'}); } 
+    else if(n===20){ devilFruits=[]; animeBoss={x:W-200, y:200, hp:100, maxHp:100}; for(let i=0;i<3;i++) devilFruits.push({x:Math.random()*W, y:Math.random()*H, taken:false}); } 
+    else if(n===21){ droneCrystals=[]; droneBullets=[]; droneUfos=[]; droneSpawnTimer=0; } 
+    else if(n===22){ rpgEnemies=[]; rpgSpawnTimer=0; rpgWave=1; } 
+    else if(n===23){ mushrooms=[]; shroomMonsters=[]; shroomSpawnTimer=0; shroomTimer=0; }
+    else if(n===24){ lightOrbs=[]; dayTime=1.0; }
+    else if(n===25){ rhythmNotes=[]; rhythmSpawnTimer=0; rhythmScore=0; rhythmHealth=100; }
+    else if(n===26){ neuroAst=[]; neuroCryst=[]; neuroScroll=0; }
 }
-function exitGame() { cg = 0; menu.classList.remove('hidden'); exitBtn.style.display = 'none'; joy1Div.style.display = 'none'; joy2Div.style.display = 'none'; score1Div.style.display = 'none'; score2Div.style.display = 'none'; msgBox.classList.remove('show'); msgBox.style.display = 'none'; buildBtn.style.display='none'; speechSynthesis.cancel(); if(mOn) toggleMusic(); }
+function exitGame() { cg = 0; menu.classList.remove('hidden'); exitBtn.style.display = 'none'; joy1Div.style.display = 'none'; joy2Div.style.display = 'none'; score1Div.style.display = 'none'; score2Div.style.display = 'none'; msgBox.classList.remove('show'); msgBox.style.display = 'none'; buildBtn.style.display='none'; rhythmBtns.style.display='none'; speechSynthesis.cancel(); if(mOn) toggleMusic(); }
 function checkDead() { if(p1.dead && gMode === 1) { showMsg(i18n[currentLang].lose); return true; } if(gMode === 2 && p1.dead && p2.dead) { showMsg(i18n[currentLang].lose); return true; } return false; }
-function showMsg(v) { msgText.innerHTML = v; msgBox.style.display = 'block'; setTimeout(() => msgBox.classList.add('show'), 10); sp(v.replace(/<br>/g, ' ')); exitBtn.style.display = 'none'; joy1Div.style.display = 'none'; joy2Div.style.display = 'none'; score1Div.style.display = 'none'; score2Div.style.display = 'none'; buildBtn.style.display='none'; cg = 0; if(mOn) toggleMusic(); }
-
+function showMsg(v) { msgText.innerHTML = v; msgBox.style.display = 'block'; setTimeout(() => msgBox.classList.add('show'), 10); sp(v.replace(/<br>/g, ' ')); exitBtn.style.display = 'none'; joy1Div.style.display = 'none'; joy2Div.style.display = 'none'; score1Div.style.display = 'none'; score2Div.style.display = 'none'; buildBtn.style.display='none'; rhythmBtns.style.display='none'; cg = 0; if(mOn) toggleMusic(); }
 function toggleBuild() { p1.building = !p1.building; if(p1.building) sp("Режим строительства!"); else sp("Строительство выключено"); }
+
 function loop() { if(cg !== 0){ update(); draw(); } requestAnimationFrame(loop); }
 function update() {
     t++; let sp1 = 4, sp2_ = 4;
     if(p1.boost > 0) { sp1 = 8; p1.boost--; } if(p2.boost > 0) { sp2_ = 8; p2.boost--; }
     p1.vx = j1.dx/40*sp1; p1.vy = j1.dy/40*sp1; p2.vx = j2.dx/40*sp2_; p2.vy = j2.dy/40*sp2_;
-    updatePlayer(p1); if(gMode === 2) updatePlayer(p2);
-    if(cg===1) u1(); else if(cg===2) u2(); else if(cg===3) u3(); else if(cg===4) u4(); else if(cg===5) u5(); else if(cg===6) u6(); else if(cg===7) u7(); else if(cg===8) u8(); else if(cg===9) u9(); else if(cg===10) u10(); else if(cg===11) u11(); else if(cg===12) u12(); else if(cg===13) u13(); else if(cg===14) u14(); else if(cg===15) u15(); else if(cg===16) u16(); else if(cg===17) u17(); else if(cg===18) u18(); else if(cg===19) u19(); else if(cg===20) u20(); else if(cg===21) u21(); else if(cg===22) u22(); else if(cg===23) u23();
-    score1Div.innerText = 'P1: ' + (cg===8 ? p1.honey : (cg===16 ? parkourScore : p1.score));
-    score2Div.innerText = 'P2: ' + (cg===8 ? p2.honey : (cg===16 ? parkourScore : p2.score));
+    
+    if(cg !== 16 && cg !== 21) updatePlayer(p1); 
+    if(gMode === 2 && cg !== 16 && cg !== 21) updatePlayer(p2);
+    
+    if(cg===1) u1(); else if(cg===2) u2(); else if(cg===3) u3(); else if(cg===4) u4(); else if(cg===5) u5(); else if(cg===6) u6(); else if(cg===7) u7(); else if(cg===8) u8(); else if(cg===9) u9(); else if(cg===10) u10(); else if(cg===11) u11(); else if(cg===12) u12(); else if(cg===13) u13(); else if(cg===14) u14(); else if(cg===15) u15(); else if(cg===16) u16(); else if(cg===17) u17(); else if(cg===18) u18(); else if(cg===19) u19(); else if(cg===20) u20(); else if(cg===21) u21(); else if(cg===22) u22(); else if(cg===23) u23(); else if(cg===24) u24(); else if(cg===25) u25(); else if(cg===26) u26();
+    
+    score1Div.innerText = 'P1: ' + p1.score;
+    score2Div.innerText = 'P2: ' + p2.score;
 }
 function updatePlayer(p) {
     if(p.dead){ p.x += p.vx*1.5; p.y += p.vy*1.5; if(p.x<0) p.x=W; if(p.x>W) p.x=0; if(p.y<0) p.y=H; if(p.y>H) p.y=0; return; }
@@ -254,31 +281,83 @@ function updatePlayer(p) {
 }
 function draw() {
     x.clearRect(0, 0, W, H);
-    if(cg===1) d1(); else if(cg===2) d2(); else if(cg===3) d3(); else if(cg===4) d4(); else if(cg===5) d5(); else if(cg===6) d6(); else if(cg===7) d7(); else if(cg===8) d8(); else if(cg===9) d9(); else if(cg===10) d10(); else if(cg===11) d11(); else if(cg===12) d12(); else if(cg===13) d13(); else if(cg===14) d14(); else if(cg===15) d15(); else if(cg===16) d16(); else if(cg===17) d17(); else if(cg===18) d18(); else if(cg===19) d19(); else if(cg===20) d20(); else if(cg===21) d21(); else if(cg===22) d22(); else if(cg===23) d23();
-    if(gMode === 2) drawPlayer(p2, custom2.color, custom2.hat);
-    drawPlayer(p1, custom1.color, custom1.hat);
+    if(cg===1) d1(); else if(cg===2) d2(); else if(cg===3) d3(); else if(cg===4) d4(); else if(cg===5) d5(); else if(cg===6) d6(); else if(cg===7) d7(); else if(cg===8) d8(); else if(cg===9) d9(); else if(cg===10) d10(); else if(cg===11) d11(); else if(cg===12) d12(); else if(cg===13) d13(); else if(cg===14) d14(); else if(cg===15) d15(); else if(cg===16) d16(); else if(cg===17) d17(); else if(cg===18) d18(); else if(cg===19) d19(); else if(cg===20) d20(); else if(cg===21) d21(); else if(cg===22) d22(); else if(cg===23) d23(); else if(cg===24) d24(); else if(cg===25) d25(); else if(cg===26) d26();
+    if(gMode === 2 && cg!==25 && cg!==21) drawPlayer(p2, custom2);
+    if(cg!==25 && cg!==21) drawPlayer(p1, custom1);
 }
-function drawPlayer(p, col, hat) {
-    x.fillStyle = 'rgba(0,0,0,0.2)'; x.beginPath(); x.ellipse(p.x, p.y+25, 20, 8, 0, 0, 2*Math.PI); x.fill();
-    x.save(); x.translate(p.x, p.y); if(p.vx !== 0 || p.vy !== 0) x.rotate(p.a + Math.PI/2);
+
+function drawPlayer(p, cust) {
+    let col = cust.color, hat = cust.hat, eyes = cust.eyes, acc = cust.acc;
+    x.fillStyle = 'rgba(0,0,0,0.3)'; 
+    x.beginPath(); x.ellipse(p.x, p.y+28, 22, 8, 0, 0, 2*Math.PI); x.fill();
+    
+    x.save(); x.translate(p.x, p.y);
+    
     if(p.dead){ x.font = '40px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('👻', 0, 0); x.restore(); return; }
-    x.fillStyle = '#2c3e50'; x.fillRect(-15, 10, 12, 20 + (Math.abs(p.vx)>0.1 ? Math.sin(p.ls)*5 : 0)); x.fillRect(3, 10, 12, 20 - (Math.abs(p.vx)>0.1 ? Math.sin(p.ls)*5 : 0));
-    x.fillStyle = p.mt > 0 ? '#9b59b6' : col; x.fillRect(-20, -15, 40, 35);
+    
+    if(p.vx !== 0 || p.vy !== 0) x.rotate(p.a + Math.PI/2);
+    let walking = Math.abs(p.vx) > 0.1 || Math.abs(p.vy) > 0.1;
+    let legOff = walking ? Math.sin(p.ls)*6 : 0;
+    
+    if(acc === 'cape') { x.fillStyle = '#c0392b'; x.beginPath(); x.moveTo(-15, -10); x.lineTo(-25, 25); x.lineTo(25, 25); x.lineTo(15, -10); x.fill(); }
+    if(acc === 'wings') { x.fillStyle = 'rgba(255,255,255,0.8)'; x.beginPath(); x.ellipse(-20, -5, 15, 25, -0.3, 0, 2*Math.PI); x.ellipse(20, -5, 15, 25, 0.3, 0, 2*Math.PI); x.fill(); }
+    
+    x.fillStyle = '#2c3e50'; 
+    x.fillRect(-12, 10, 10, 20 + legOff);
+    x.fillRect(2, 10, 10, 20 - legOff);
+    x.fillStyle = '#34495e'; 
+    x.fillRect(-14, 28 + legOff, 14, 6);
+    x.fillRect(0, 28 - legOff, 14, 6);
+    
+    x.fillStyle = col; 
+    x.beginPath(); x.roundRect(-20, -15, 40, 35, 10); x.fill();
     x.fillStyle = 'rgba(0,0,0,0.2)'; x.fillRect(-20, 10, 40, 10);
-    x.fillStyle = '#f1c27f'; x.fillRect(-25, -10, 5, 15); x.fillRect(20, -10, 5, 15);
+    x.fillStyle = '#f1c27f'; x.fillRect(-25, -10, 6, 18); x.fillRect(19, -10, 6, 18);
+    
+    x.fillStyle = '#f1c27f'; 
     x.beginPath(); x.arc(0, -25, 18, 0, 2*Math.PI); x.fill();
-    x.fillStyle = 'white'; x.beginPath(); x.arc(-6, -28, 5, 0, 2*Math.PI); x.arc(6, -28, 5, 0, 2*Math.PI); x.fill();
-    x.fillStyle = 'black'; x.beginPath(); x.arc(-6, -28, 2, 0, 2*Math.PI); x.arc(6, -28, 2, 0, 2*Math.PI); x.fill();
-    x.strokeStyle = 'black'; x.lineWidth = 2; x.beginPath(); x.arc(0, -20, 8, 0, Math.PI); x.stroke();
-    if(hat && hat !== 'none'){ x.font = '25px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(hat, 0, -42); }
+    if(hat === 'none' || hat == 'cap') { x.fillStyle = '#2c3e50'; x.beginPath(); x.arc(0, -30, 18, Math.PI, 0); x.fill(); }
+    
+    x.fillStyle = 'white'; 
+    x.beginPath(); x.arc(-6, -25, 5, 0, 2*Math.PI); x.arc(6, -25, 5, 0, 2*Math.PI); x.fill();
+    x.fillStyle = 'black';
+    if(eyes === 'angry') { x.beginPath(); x.moveTo(-9, -28); x.lineTo(-3, -26); x.arc(-6, -25, 2, 0, 2*Math.PI); x.moveTo(9, -28); x.lineTo(3, -26); x.arc(6, -25, 2, 0, 2*Math.PI); x.fill(); x.strokeStyle='black'; x.lineWidth=2; x.beginPath(); x.moveTo(-10,-29); x.lineTo(-2,-27); x.moveTo(10,-29); x.lineTo(2,-27); x.stroke(); }
+    else if(eyes === 'cool') { x.fillStyle='black'; x.fillRect(-12, -30, 12, 8); x.fillRect(0, -30, 12, 8); }
+    else if(eyes === 'cute') { x.beginPath(); x.arc(-6, -24, 3, 0, 2*Math.PI); x.arc(6, -24, 3, 0, 2*Math.PI); x.fill(); }
+    else { x.beginPath(); x.arc(-6, -25, 2, 0, 2*Math.PI); x.arc(6, -25, 2, 0, 2*Math.PI); x.fill(); }
+    
+    x.strokeStyle = 'black'; x.lineWidth = 2; x.beginPath();
+    if(p.mt > 0) { x.fillStyle='purple'; x.beginPath(); x.arc(0, -18, 5, 0, Math.PI); x.fill(); }
+    else { x.arc(0, -18, 6, 0, Math.PI); x.stroke(); }
+    
+    if(hat === 'cap') { x.fillStyle='#e74c3c'; x.fillRect(-12, -42, 24, 10); x.fillRect(-12, -42, 30, 5); }
+    if(hat === 'top') { x.fillStyle='#2c3e50'; x.fillRect(-15, -40, 30, 5); x.fillRect(-10, -55, 20, 15); }
+    if(hat === 'crown') { x.fillStyle='#f1c40f'; x.beginPath(); x.moveTo(-15, -40); x.lineTo(-15, -55); x.lineTo(-7, -45); x.lineTo(0, -60); x.lineTo(7, -45); x.lineTo(15, -55); x.lineTo(15, -40); x.fill(); }
+    if(hat === 'helm') { x.fillStyle='#7f8c8d'; x.beginPath(); x.arc(0, -25, 22, Math.PI, 0); x.fill(); x.fillRect(-22, -25, 44, 5); }
+    
+    if(acc === 'phones') { x.strokeStyle='#2c3e50'; x.lineWidth=4; x.beginPath(); x.arc(0, -25, 20, 0, Math.PI); x.stroke(); x.fillStyle='#e74c3c'; x.fillRect(-23, -28, 8, 12); x.fillRect(15, -28, 8, 12); }
+    
     if(p.boost > 0) { x.strokeStyle = '#f1c40f'; x.lineWidth = 3; x.beginPath(); x.arc(0, 0, 45, 0, 2*Math.PI); x.stroke(); }
     x.restore();
 }
 
-// === РЕЖИМЫ 1-16 ===
+// === ОРИГИНАЛЬНЫЕ ИГРЫ (1-20) ===
 let blocks=[], monster=null;
-function u1() { if(t===1) sp(i18n[currentLang].msgs[0]); if(t>600 && !monster){ monster={x:-100, y:H/2}; sp("Huggy!"); } if(monster) { let b=false; blocks.forEach(r=>{ if(monster.x>r.x-50 && monster.x<r.x+50 && monster.y>r.y-40 && monster.y<r.y+40){ r.h--; b=true; if(r.h<=0) blocks.splice(blocks.indexOf(r), 1); } }); if(!b) monster.x += 1.5; if(monster.x > W+100){ if(!checkDead()) showMsg(i18n[currentLang].win[0]); } if(!p1.dead && Math.hypot(monster.x-p1.x, monster.y-p1.y) < 60){ p1.dead = true; sp(i18n[currentLang].ghost[0]); } if(gMode===2 && !p2.dead && Math.hypot(monster.x-p2.x, monster.y-p2.y) < 60){ p2.dead = true; sp(i18n[currentLang].ghost[0]); } checkDead(); } if(j1.active && t%10 === 0) blocks.push({x: p1.x, y: p1.y, h: 3}); if(gMode===2 && j2.active && t%10 === 0) blocks.push({x: p2.x, y: p2.y, h: 3}); }
-function d1() { let g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#87CEEB'); g.addColorStop(.7,'#2ecc71'); g.addColorStop(1,'#27ae60'); x.fillStyle=g; x.fillRect(0,0,W,H); x.fillStyle='#fff'; x.beginPath(); x.arc(W*.2,100,30,0,2*Math.PI); x.arc(W*.2+30,100,40,0,2*Math.PI); x.arc(W*.2+60,100,30,0,2*Math.PI); x.fill(); blocks.forEach(r=>{ x.fillStyle='rgba(0,0,0,.2)'; x.fillRect(r.x-18,r.y-13,40,30); x.fillStyle='#e67e22'; x.fillRect(r.x-20,r.y-15,40,30); x.strokeStyle='#d35400'; x.lineWidth=2; x.strokeRect(r.x-20,r.y-15,40,30); }); if(monster) { x.fillStyle='#2a36b1'; x.fillRect(monster.x-40,monster.y-60,80,120); x.fillStyle='#fff'; x.beginPath(); x.arc(monster.x-20,monster.y-40,15,0,2*Math.PI); x.arc(monster.x+20,monster.y-40,15,0,2*Math.PI); x.fill(); x.fillStyle='#000'; x.beginPath(); x.arc(monster.x-20,monster.y-40,6,0,2*Math.PI); x.arc(monster.x+20,monster.y-40,6,0,2*Math.PI); x.fill(); x.fillStyle='#d50000'; x.beginPath(); x.moveTo(monster.x-30,monster.y); x.quadraticCurveTo(monster.x,monster.y+40,monster.x+30,monster.y); x.quadraticCurveTo(monster.x,monster.y+20,monster.x-30,monster.y); x.fill(); } }
+function u1() { if(t===1) sp(i18n[currentLang].msgs[0]); if(t>600 && !monster){ monster={x:-100, y:H/2, anim:0}; sp("Huggy!"); } if(monster) { let b=false; blocks.forEach(r=>{ if(monster.x>r.x-50 && monster.x<r.x+50 && monster.y>r.y-40 && monster.y<r.y+40){ r.h--; b=true; if(r.h<=0) blocks.splice(blocks.indexOf(r), 1); } }); if(!b) monster.x += 1.5; monster.anim += 0.2; if(monster.x > W+100){ if(!checkDead()) showMsg(i18n[currentLang].win[0]); } if(!p1.dead && Math.hypot(monster.x-p1.x, monster.y-p1.y) < 60){ p1.dead = true; sp(i18n[currentLang].ghost[0]); } if(gMode===2 && !p2.dead && Math.hypot(monster.x-p2.x, monster.y-p2.y) < 60){ p2.dead = true; sp(i18n[currentLang].ghost[0]); } checkDead(); } if(j1.active && t%10 === 0) blocks.push({x: p1.x, y: p1.y, h: 3}); if(gMode===2 && j2.active && t%10 === 0) blocks.push({x: p2.x, y: p2.y, h: 3}); }
+function d1() { let g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#87CEEB'); g.addColorStop(.7,'#2ecc71'); g.addColorStop(1,'#27ae60'); x.fillStyle=g; x.fillRect(0,0,W,H); x.fillStyle='#fff'; x.beginPath(); x.arc(W*.2,100,30,0,2*Math.PI); x.arc(W*.2+30,100,40,0,2*Math.PI); x.arc(W*.2+60,100,30,0,2*Math.PI); x.fill(); blocks.forEach(r=>{ x.fillStyle='rgba(0,0,0,.2)'; x.fillRect(r.x-18,r.y-13,40,30); x.fillStyle='#e67e22'; x.fillRect(r.x-20,r.y-15,40,30); x.strokeStyle='#d35400'; x.lineWidth=2; x.strokeRect(r.x-20,r.y-15,40,30); }); 
+    if(monster) { 
+        let mx = monster.x, my = monster.y, sw = Math.sin(monster.anim)*10;
+        x.fillStyle='rgba(0,0,0,0.3)'; x.beginPath(); x.ellipse(mx, my+60, 40, 15, 0, 0, 2*Math.PI); x.fill();
+        let bg = x.createLinearGradient(mx-40, my-60, mx+40, my+60); bg.addColorStop(0,'#2a36b1'); bg.addColorStop(1,'#1a2065');
+        x.fillStyle = bg; x.beginPath(); x.roundRect(mx-40, my-60, 80, 120, 20); x.fill();
+        x.fillStyle='#2a36b1'; x.beginPath(); x.roundRect(mx-55, my-40+sw, 20, 60, 10); x.fill(); x.beginPath(); x.roundRect(mx+35, my-40-sw, 20, 60, 10); x.fill();
+        x.fillStyle = '#fff'; x.beginPath(); x.arc(mx-20, my-30, 15, 0, 2*Math.PI); x.arc(mx+20, my-30, 15, 0, 2*Math.PI); x.fill();
+        x.fillStyle = '#000'; x.beginPath(); x.arc(mx-20, my-30, 6, 0, 2*Math.PI); x.arc(mx+20, my-30, 6, 0, 2*Math.PI); x.fill();
+        x.fillStyle = '#d50000'; x.beginPath(); x.moveTo(mx-30, my); x.quadraticCurveTo(mx, my+40, mx+30, my); x.quadraticCurveTo(mx, my+20, mx-30, my); x.fill();
+        x.fillStyle = '#fff'; 
+        for(let i=-2; i<=2; i++) { x.beginPath(); x.moveTo(mx + i*12 - 6, my); x.lineTo(mx + i*12, my+15); x.lineTo(mx + i*12 + 6, my); x.fill(); }
+    } 
+}
 let chaser = {x:100, y:0};
 function u2() { if(t===1) sp(i18n[currentLang].msgs[1]); let aliveP = p1.dead ? p2 : p1; if(p1.dead && p2.dead) aliveP = p1; chaser.x += (aliveP.x-chaser.x)*.01; chaser.y += (aliveP.y-chaser.y)*.01; if(t > 3600){ if(!checkDead()) showMsg(i18n[currentLang].win[1]); } if(!p1.dead && Math.hypot(chaser.x-p1.x, chaser.y-p1.y) < 50){ p1.dead = true; sp(i18n[currentLang].ghost[1]); } if(gMode===2 && !p2.dead && Math.hypot(chaser.x-p2.x, chaser.y-p2.y) < 50){ p2.dead = true; sp(i18n[currentLang].ghost[1]); } checkDead(); }
 function d2() { x.fillStyle='#2c3e50'; x.fillRect(0,0,W,H); x.strokeStyle='#f1c40f'; x.lineWidth=5; x.setLineDash([30,20]); x.beginPath(); x.moveTo(W/2,0); x.lineTo(W/2,H); x.stroke(); x.setLineDash([]); x.fillStyle='rgba(0,0,0,.3)'; x.beginPath(); x.ellipse(chaser.x,chaser.y+30,30,10,0,0,2*Math.PI); x.fill(); x.font='60px Arial'; x.textAlign='center'; x.fillText('👻',chaser.x,chaser.y); }
@@ -318,283 +397,131 @@ function d13() { x.fillStyle='#1a1a2e'; x.fillRect(0,0,W,H); x.font='60px Arial'
 let bacons = [], spawnTimer = 0;
 function u14() { if(t === 1) bacons = []; spawnTimer++; if(bacons.length < 1000 && spawnTimer%2 === 0) { for(let i=0; i<10; i++) bacons.push({x:Math.random()*W, y:Math.random()*H, d:Math.random()*Math.PI*2, s:Math.random()*20+10}); } bacons.forEach(b => { b.d += .02; b.x += Math.cos(b.d)*b.s*.05; b.y += Math.sin(b.d)*b.s*.05; if(b.x<0) b.x=W; if(b.x>W) b.x=0; if(b.y<0) b.y=H; if(b.y>H) b.y=0; }); }
 function d14() { x.fillStyle='#87CEEB'; x.fillRect(0,0,W,H); x.fillStyle='#FFA07A'; bacons.forEach(b => { x.fillRect(b.x, b.y, 3, 3); }); }
-
-// Режим 15: Защита Матрицы
-let zombies = [], boosts = [], bullets = [], matrix = {hp:1000}, fortBlocks = [], trees = [], zombieWave = 1, zombieSpawnTimer = 0;
-function u15() {
-    if(t === 1) sp(i18n[currentLang].msgs[14]);
-    zombieSpawnTimer++;
-    if(zombieSpawnTimer > 1800) { zombieWave++; zombieSpawnTimer = 0; sp("Волна " + zombieWave + "!"); }
-    let maxZombies = 5 + zombieWave * 3;
-    if(t % (60 - zombieWave * 2) === 0 && zombies.length < maxZombies) { zombies.push({x:Math.random()<0.5?-50:W+50, y:Math.random()*H, vx:0, vy:0, hp:3}); }
-    if(t % 300 === 0) boosts.push({x:Math.random()*W, y:Math.random()*H});
-    if(p1.building && t % 5 === 0) fortBlocks.push({x: p1.x, y: p1.y, h: 50});
-    
-    if(!p1.dead && t % 10 === 0) {
-        let target = null, minDist = 300;
-        zombies.forEach(z => { let d = Math.hypot(z.x-p1.x, z.y-p1.y); if(d < minDist){ minDist = d; target = z; } });
-        if(target) { let a = Math.atan2(target.y-p1.y, target.x-p1.x); bullets.push({x:p1.x, y:p1.y, vx:Math.cos(a)*15, vy:Math.sin(a)*15}); }
-    }
-    if(gMode===2 && !p2.dead && t % 10 === 0) {
-        let target = null, minDist = 300;
-        zombies.forEach(z => { let d = Math.hypot(z.x-p2.x, z.y-p2.y); if(d < minDist){ minDist = d; target = z; } });
-        if(target) { let a = Math.atan2(target.y-p2.y, target.x-p2.x); bullets.push({x:p2.x, y:p2.y, vx:Math.cos(a)*15, vy:Math.sin(a)*15}); }
-    }
-    
-    bullets.forEach(b => { b.x += b.vx; b.y += b.vy; if(b.x<0||b.x>W||b.y<0||b.y>H) bullets.splice(bullets.indexOf(b),1); });
-    
-    zombies.forEach(z => {
-        z.vx = (matrix.x - z.x) * 0.005; z.vy = (matrix.y - z.y) * 0.005;
-        z.x += z.vx; z.y += z.vy;
-        if(Math.hypot(z.x-matrix.x, z.y-matrix.y) < 80){ matrix.hp -= 1; }
-        if(!p1.dead && p1.boost === 0 && Math.hypot(z.x-p1.x, z.y-p1.y) < 40){ p1.dead = true; sp(i18n[currentLang].ghost[6]); }
-        if(gMode===2 && !p2.dead && p2.boost === 0 && Math.hypot(z.x-p2.x, z.y-p2.y) < 40){ p2.dead = true; sp(i18n[currentLang].ghost[6]); }
-        fortBlocks.forEach(b => { if(Math.hypot(z.x-b.x, z.y-b.y) < 40) { z.x -= z.vx; z.y -= z.vy; b.h -= 0.1; if(b.h<=0) fortBlocks.splice(fortBlocks.indexOf(b),1); } });
-        bullets.forEach(b => { if(Math.hypot(z.x-b.x, z.y-b.y) < 30) { z.hp -= 1; bullets.splice(bullets.indexOf(b),1); if(z.hp<=0){ zombies.splice(zombies.indexOf(z),1); p1.score++; } } });
-    });
-    boosts.forEach(b => {
-        if(!p1.dead && Math.hypot(b.x-p1.x, b.y-p1.y) < 40){ p1.boost = 300; boosts.splice(boosts.indexOf(b),1); sp("Boost!"); }
-        if(gMode===2 && !p2.dead && Math.hypot(b.x-p2.x, b.y-p2.y) < 40){ p2.boost = 300; boosts.splice(boosts.indexOf(b),1); sp("Boost!"); }
-    });
-    if(matrix.hp <= 0){ showMsg("💀 МАТРИЦА УНИЧТОЖЕНА!"); }
-    checkDead();
-}
-function d15() {
-    let g = x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#2ecc71'); g.addColorStop(1,'#27ae60');
-    x.fillStyle = g; x.fillRect(0,0,W,H);
-    x.fillStyle = '#7f8c8d'; x.fillRect(0, H/2-50, W, 100);
-    x.fillStyle = '#fff'; x.font='bold 24px Arial'; x.textAlign='center'; x.fillText("ВОЛНА: " + zombieWave, W/2, 130);
-    trees.forEach(tr => { x.font = '40px Arial'; x.textAlign='center'; x.fillText('🌳', tr.x, tr.y); });
-    fortBlocks.forEach(b => { x.fillStyle='rgba(0,0,0,0.2)'; x.fillRect(b.x-25, b.y-15, 50, 40); x.fillStyle='#e67e22'; x.fillRect(b.x-25, b.y-20, 50, 40); x.strokeStyle='#d35400'; x.lineWidth=2; x.strokeRect(b.x-25, b.y-20, 50, 40); });
-    boosts.forEach(b => { x.fillStyle='#f1c40f'; x.beginPath(); x.arc(b.x, b.y, 15, 0, 2*Math.PI); x.fill(); x.font='20px Arial'; x.textAlign='center'; x.fillText('⚡', b.x, b.y+7); });
-    zombies.forEach(z => { x.font='40px Arial'; x.textAlign='center'; x.fillText('🧟‍♂️', z.x, z.y); });
-    bullets.forEach(b => { x.fillStyle='#fff'; x.beginPath(); x.arc(b.x, b.y, 4, 0, 2*Math.PI); x.fill(); });
-    x.font='80px Arial'; x.textAlign='center'; x.fillText('🔮', matrix.x, matrix.y);
-    x.fillStyle='#e74c3c'; x.fillRect(matrix.x-60, matrix.y-80, 120, 10);
-    x.fillStyle='#2ecc71'; x.fillRect(matrix.x-60, matrix.y-80, 120 * (matrix.hp/1000), 10);
-}
-
-// Режим 16: Паркур
+let zombies = [], boosts = [], bullets = [], matrix = {hp:1000}, fortBlocks = [], zombieWave = 1, zombieSpawnTimer = 0;
+function u15() { if(t === 1) sp(i18n[currentLang].msgs[14]); zombieSpawnTimer++; if(zombieSpawnTimer > 1800) { zombieWave++; zombieSpawnTimer = 0; sp("Волна " + zombieWave + "!"); } let maxZombies = 5 + zombieWave * 3; if(t % (60 - zombieWave * 2) === 0 && zombies.length < maxZombies) { zombies.push({x:Math.random()<0.5?-50:W+50, y:Math.random()*H, hp:3}); } if(t % 300 === 0) boosts.push({x:Math.random()*W, y:Math.random()*H}); if(p1.building && t % 5 === 0) fortBlocks.push({x: p1.x, y: p1.y, h: 50}); if(!p1.dead && t % 10 === 0) { let target = null, minDist = 300; zombies.forEach(z => { let d = Math.hypot(z.x-p1.x, z.y-p1.y); if(d < minDist){ minDist = d; target = z; } }); if(target) { let a = Math.atan2(target.y-p1.y, target.x-p1.x); bullets.push({x:p1.x, y:p1.y, vx:Math.cos(a)*15, vy:Math.sin(a)*15}); } } bullets.forEach(b => { b.x += b.vx; b.y += b.vy; if(b.x<0||b.x>W||b.y<0||b.y>H) bullets.splice(bullets.indexOf(b),1); }); zombies.forEach(z => { z.vx = (matrix.x - z.x) * 0.005; z.vy = (matrix.y - z.y) * 0.005; z.x += z.vx; z.y += z.vy; if(Math.hypot(z.x-matrix.x, z.y-matrix.y) < 80){ matrix.hp -= 1; } if(!p1.dead && p1.boost === 0 && Math.hypot(z.x-p1.x, z.y-p1.y) < 40){ p1.dead = true; sp(i18n[currentLang].ghost[6]); } fortBlocks.forEach(b => { if(Math.hypot(z.x-b.x, z.y-b.y) < 40) { z.x -= z.vx; z.y -= z.vy; b.h -= 0.1; if(b.h<=0) fortBlocks.splice(fortBlocks.indexOf(b),1); } }); bullets.forEach(b => { if(Math.hypot(z.x-b.x, z.y-b.y) < 30) { z.hp -= 1; bullets.splice(bullets.indexOf(b),1); if(z.hp<=0){ zombies.splice(zombies.indexOf(z),1); p1.score++; } } }); }); boosts.forEach(b => { if(!p1.dead && Math.hypot(b.x-p1.x, b.y-p1.y) < 40){ p1.boost = 300; boosts.splice(boosts.indexOf(b),1); sp("Boost!"); } }); if(matrix.hp <= 0){ showMsg("💀 МАТРИЦА УНИЧТОЖЕНА!"); } checkDead(); }
+function d15() { let g = x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#2ecc71'); g.addColorStop(1,'#27ae60'); x.fillStyle = g; x.fillRect(0,0,W,H); x.fillStyle = '#7f8c8d'; x.fillRect(0, H/2-50, W, 100); x.fillStyle = '#fff'; x.font='bold 24px Arial'; x.textAlign='center'; x.fillText("ВОЛНА: " + zombieWave, W/2, 130); fortBlocks.forEach(b => { x.fillStyle='rgba(0,0,0,0.2)'; x.fillRect(b.x-25, b.y-15, 50, 40); x.fillStyle='#e67e22'; x.fillRect(b.x-25, b.y-20, 50, 40); }); boosts.forEach(b => { x.fillStyle='#f1c40f'; x.beginPath(); x.arc(b.x, b.y, 15, 0, 2*Math.PI); x.fill(); x.font='20px Arial'; x.textAlign='center'; x.fillText('⚡', b.x, b.y+7); }); zombies.forEach(z => { x.font='40px Arial'; x.textAlign='center'; x.fillText('🧟‍♂️', z.x, z.y); }); bullets.forEach(b => { x.fillStyle='#fff'; x.beginPath(); x.arc(b.x, b.y, 4, 0, 2*Math.PI); x.fill(); }); x.font='80px Arial'; x.textAlign='center'; x.fillText('🔮', matrix.x, matrix.y); x.fillStyle='#e74c3c'; x.fillRect(matrix.x-60, matrix.y-80, 120, 10); x.fillStyle='#2ecc71'; x.fillRect(matrix.x-60, matrix.y-80, 120 * (matrix.hp/1000), 10); }
 let parkourBlocks = [], parkourScroll = 0, parkourScore = 0;
 function genParkour() { for(let i=0; i<20; i++) parkourBlocks.push({x:Math.random()*W, y:H - i*100, w:80, h:30}); }
-function u16() {
-    if(t === 1) sp(i18n[currentLang].msgs[15]);
-    p1.vy += 0.5; p2.vy += 0.5;
-    p1.y += p1.vy; p2.y += p2.vy;
-    parkourScroll += 1; parkourScore = Math.floor(parkourScroll / 10);
-    parkourBlocks.forEach(b => {
-        if(p1.x > b.x-20 && p1.x < b.x+b.w+20 && p1.y > b.y-20 && p1.y < b.y+b.h) { p1.y = b.y-20; p1.vy = 0; p1.vx *= 1.5; }
-        if(gMode===2 && p2.x > b.x-20 && p2.x < b.x+b.w+20 && p2.y > b.y-20 && p2.y < b.y+b.h) { p2.y = b.y-20; p2.vy = 0; p2.vx *= 1.5; }
-        b.y += 1;
-    });
-    if(parkourBlocks.length < 20) parkourBlocks.push({x:Math.random()*W, y:-50, w:80, h:30});
-    parkourBlocks = parkourBlocks.filter(b => b.y < H + 50);
-    if(p1.y > H) { p1.dead = true; sp("Ouch!"); }
-    if(gMode===2 && p2.y > H) { p2.dead = true; sp("Ouch!"); }
-    checkDead();
-}
-function d16() {
-    x.fillStyle='#87CEEB'; x.fillRect(0,0,W,H);
-    parkourBlocks.forEach(b => { x.fillStyle='#7f8c8d'; x.fillRect(b.x, b.y, b.w, b.h); x.fillStyle='#95a5a6'; x.fillRect(b.x, b.y, b.w, 5); x.fillStyle='#000'; x.font='20px Arial'; x.textAlign='center'; x.fillText('🟫', b.x+b.w/2, b.y+b.h/2+5); });
-}
-
-// === 7 НОВЫХ МАСШТАБНЫХ ИГР (17-23) ===
-// 17: Симулятор Жизни
+function u16() { if(t === 1) sp(i18n[currentLang].msgs[15]); p1.vy_park += 0.5; if(gMode===2) p2.vy_park += 0.5; p1.y += p1.vy_park; if(gMode===2) p2.y += p2.vy_park; p1.x += p1.vx; if(gMode===2) p2.x += p2.vx; parkourScroll += 1; parkourScore = Math.floor(parkourScroll / 10); parkourBlocks.forEach(b => { if(p1.x > b.x-20 && p1.x < b.x+b.w+20 && p1.y > b.y-20 && p1.y < b.y+b.h) { p1.y = b.y-20; p1.vy_park = 0; p1.vx *= 1.5; } if(gMode===2 && p2.x > b.x-20 && p2.x < b.x+b.w+20 && p2.y > b.y-20 && p2.y < b.y+b.h) { p2.y = b.y-20; p2.vy_park = 0; p2.vx *= 1.5; } b.y += 1; }); if(parkourBlocks.length < 20) parkourBlocks.push({x:Math.random()*W, y:-50, w:80, h:30}); parkourBlocks = parkourBlocks.filter(b => b.y < H + 50); if(p1.y > H) { p1.dead = true; sp("Ouch!"); } if(gMode===2 && p2.y > H) { p2.dead = true; sp("Ouch!"); } checkDead(); }
+function d16() { x.fillStyle='#87CEEB'; x.fillRect(0,0,W,H); parkourBlocks.forEach(b => { x.fillStyle='#7f8c8d'; x.fillRect(b.x, b.y, b.w, b.h); x.fillStyle='#95a5a6'; x.fillRect(b.x, b.y, b.w, 5); }); }
 let lifeHouses=[], lifeCars=[], lifeNPCs=[];
-function u17() {
-    if(t===1) sp(i18n[currentLang].msgs[16]);
-    // Покупка дома
-    lifeHouses.forEach(h => {
-        if(!p1.dead && !h.bought && Math.hypot(p1.x-h.x, p1.y-h.y) < 60 && p1.money >= 100) { h.bought = true; p1.money -= 100; sp("Куплен дом!"); }
-    });
-    // Садимся в машину
-    lifeCars.forEach(car => {
-        if(car.parked && !p1.dead && Math.hypot(p1.x-car.x, p1.y-car.y) < 50) { car.parked = false; p1.inCar = true; sp("Ты в машине!"); }
-        if(!car.parked && p1.inCar) { car.x = p1.x; car.y = p1.y; }
-    });
-    // Заработок
-    if(!p1.inCar) p1.money += 0.1;
-    // Общение с NPC
-    lifeNPCs.forEach(npc => {
-        if(!p1.dead && Math.hypot(p1.x-npc.x, p1.y-npc.y) < 50) { npc.text = "Привет!"; } else { npc.text = "..."; }
-    });
-}
-function d17() {
-    let g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#87CEEB'); g.addColorStop(1,'#2ecc71'); x.fillStyle=g; x.fillRect(0,0,W,H);
-    // Дома
-    lifeHouses.forEach(h => { x.fillStyle = h.bought ? '#e67e22' : '#95a5a6'; x.fillRect(h.x-30, h.y-30, 60, 60); x.font='30px Arial'; x.textAlign='center'; x.fillText('🏠', h.x, h.y); });
-    // Машины
-    lifeCars.forEach(car => { x.font='40px Arial'; x.textAlign='center'; x.fillText('🚗', car.x, car.y); });
-    // NPC
-    lifeNPCs.forEach(npc => { x.font='30px Arial'; x.textAlign='center'; x.fillText('🧑', npc.x, npc.y); x.font='15px Arial'; x.fillStyle='#000'; x.fillText(npc.text, npc.x, npc.y-30); });
-    // Деньги
-    x.fillStyle='#000'; x.font='bold 20px Arial'; x.textAlign='left'; x.fillText('💰 ' + Math.floor(p1.money) + '$', 20, 80);
-    if(p1.inCar) { x.textAlign='center'; x.fillText('Ты в машине! Выйди, чтобы заработать.', W/2, H-50); }
-}
-
-// 18: Питомцы
+function u17() { if(t===1) sp(i18n[currentLang].msgs[16]); lifeHouses.forEach(h => { if(!p1.dead && !h.bought && Math.hypot(p1.x-h.x, p1.y-h.y) < 60 && p1.money >= 100) { h.bought = true; p1.money -= 100; sp("Куплен дом!"); } }); lifeCars.forEach(car => { if(car.parked && !p1.dead && Math.hypot(p1.x-car.x, p1.y-car.y) < 50) { car.parked = false; p1.inCar = true; sp("Ты в машине!"); } if(!car.parked && p1.inCar) { car.x = p1.x; car.y = p1.y; } }); if(!p1.inCar) p1.money += 0.1; lifeNPCs.forEach(npc => { if(!p1.dead && Math.hypot(p1.x-npc.x, p1.y-npc.y) < 50) { npc.text = "Привет!"; } else { npc.text = "..."; } }); }
+function d17() { let g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#87CEEB'); g.addColorStop(1,'#2ecc71'); x.fillStyle=g; x.fillRect(0,0,W,H); lifeHouses.forEach(h => { x.fillStyle = h.bought ? '#e67e22' : '#95a5a6'; x.fillRect(h.x-30, h.y-30, 60, 60); x.font='30px Arial'; x.textAlign='center'; x.fillText('🏠', h.x, h.y); }); lifeCars.forEach(car => { x.font='40px Arial'; x.textAlign='center'; x.fillText('🚗', car.x, car.y); }); lifeNPCs.forEach(npc => { x.font='30px Arial'; x.textAlign='center'; x.fillText('🧑', npc.x, npc.y); x.font='15px Arial'; x.fillStyle='#000'; x.fillText(npc.text, npc.x, npc.y-30); }); x.fillStyle='#000'; x.font='bold 20px Arial'; x.textAlign='left'; x.fillText('💰 ' + Math.floor(p1.money) + '$', 20, 80); }
 let pets=[], petFood=[], petHome={};
-function u18() {
-    if(t===1) sp(i18n[currentLang].msgs[17]);
-    // Ловля питомцев
-    pets.forEach(p => {
-        if(!p.caught && !p1.dead && Math.hypot(p1.x-p.x, p1.y-p.y) < 40) { p.caught = true; p1.carry = p.t; sp("Пойман!"); }
-    });
-    // Сбор еды
-    petFood.forEach(f => {
-        if(!p1.dead && Math.hypot(p1.x-f.x, p1.y-f.y) < 30) { p1.carry = '🍖'; petFood.splice(petFood.indexOf(f),1); sp("Еда!"); }
-    });
-    // Кормежка дома
-    if(p1.carry === '🍖' && Math.hypot(p1.x-petHome.x, p1.y-petHome.y) < 80) { p1.carry = null; petHome.level++; p1.score++; sp("Дом прокачан!"); }
-}
-function d18() {
-    let g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#87CEEB'); g.addColorStop(1,'#2ecc71'); x.fillStyle=g; x.fillRect(0,0,W,H);
-    pets.forEach(p => { if(!p.caught) { x.font='40px Arial'; x.textAlign='center'; x.fillText(p.t, p.x, p.y); } });
-    petFood.forEach(f => { x.font='30px Arial'; x.textAlign='center'; x.fillText('🍖', f.x, f.y); });
-    let lv = petHome.level || 0; x.font='80px Arial'; x.textAlign='center'; x.fillText('🏠', petHome.x, petHome.y);
-    if(lv > 2) x.fillText('🪑', petHome.x-40, petHome.y);
-    if(lv > 4) x.fillText('🛋️', petHome.x+40, petHome.y);
-    if(p1.carry) { x.font='30px Arial'; x.textAlign='center'; x.fillText(p1.carry, p1.x, p1.y-40); }
-}
-
-// 19: Стройка и Работа
+function u18() { if(t===1) sp(i18n[currentLang].msgs[17]); pets.forEach(p => { if(!p.caught && !p1.dead && Math.hypot(p1.x-p.x, p1.y-p.y) < 40) { p.caught = true; p1.carry = p.t; sp("Пойман!"); } }); petFood.forEach(f => { if(!p1.dead && Math.hypot(p1.x-f.x, p1.y-f.y) < 30) { p1.carry = '🍖'; petFood.splice(petFood.indexOf(f),1); sp("Еда!"); } }); if(p1.carry === '🍖' && Math.hypot(p1.x-petHome.x, p1.y-petHome.y) < 80) { p1.carry = null; petHome.level++; p1.score++; sp("Дом прокачан!"); } }
+function d18() { let g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#87CEEB'); g.addColorStop(1,'#2ecc71'); x.fillStyle=g; x.fillRect(0,0,W,H); pets.forEach(p => { if(!p.caught) { x.font='40px Arial'; x.textAlign='center'; x.fillText(p.t, p.x, p.y); } }); petFood.forEach(f => { x.font='30px Arial'; x.textAlign='center'; x.fillText('🍖', f.x, f.y); }); let lv = petHome.level || 0; x.font='80px Arial'; x.textAlign='center'; x.fillText('🏠', petHome.x, petHome.y); if(p1.carry) { x.font='30px Arial'; x.textAlign='center'; x.fillText(p1.carry, p1.x, p1.y-40); } }
 let buildBlocks=[], buildJobs=[];
-function u19() {
-    if(t===1) sp(i18n[currentLang].msgs[18]);
-    // Берем работу
-    buildJobs.forEach(j => {
-        if(!p1.dead && Math.hypot(p1.x-j.x, p1.y-j.y) < 50 && !p1.carry) { p1.carry = '🧱'; sp("Взял кирпич!"); }
-    });
-    // Строим
-    if(p1.carry === '🧱' && t%20 === 0) { buildBlocks.push({x:p1.x, y:p1.y}); p1.carry = null; p1.money += 10; p1.score++; sp("Построено!"); }
-}
-function d19() {
-    x.fillStyle='#34495e'; x.fillRect(0,0,W,H);
-    x.fillStyle='#e67e22'; x.fillRect(0, H-100, W, 100);
-    buildJobs.forEach(j => { x.font='40px Arial'; x.textAlign='center'; x.fillText('🏗️', j.x, j.y); });
-    buildBlocks.forEach(b => { x.fillStyle='#e74c3c'; x.fillRect(b.x-20, b.y-20, 40, 40); });
-    x.fillStyle='#fff'; x.font='bold 20px Arial'; x.textAlign='left'; x.fillText('💰 ' + Math.floor(p1.money) + '$', 20, 80);
-    if(p1.carry) { x.font='30px Arial'; x.textAlign='center'; x.fillText(p1.carry, p1.x, p1.y-40); }
-}
-
-// 20: Аниме RPG (One Piece)
+function u19() { if(t===1) sp(i18n[currentLang].msgs[18]); buildJobs.forEach(j => { if(!p1.dead && Math.hypot(p1.x-j.x, p1.y-j.y) < 50 && !p1.carry) { p1.carry = '🧱'; sp("Взял кирпич!"); } }); if(p1.carry === '🧱' && t%20 === 0) { buildBlocks.push({x:p1.x, y:p1.y}); p1.carry = null; p1.money += 10; p1.score++; sp("Построено!"); } }
+function d19() { x.fillStyle='#34495e'; x.fillRect(0,0,W,H); x.fillStyle='#e67e22'; x.fillRect(0, H-100, W, 100); buildJobs.forEach(j => { x.font='40px Arial'; x.textAlign='center'; x.fillText('🏗️', j.x, j.y); }); buildBlocks.forEach(b => { x.fillStyle='#e74c3c'; x.fillRect(b.x-20, b.y-20, 40, 40); }); x.fillStyle='#fff'; x.font='bold 20px Arial'; x.textAlign='left'; x.fillText('💰 ' + Math.floor(p1.money) + '$', 20, 80); }
 let devilFruits=[], animeBoss={};
-function u20() {
-    if(t===1) sp(i18n[currentLang].msgs[19]);
-    // Сбор фруктов
-    devilFruits.forEach(f => {
-        if(!f.taken && !p1.dead && Math.hypot(p1.x-f.x, p1.y-f.y) < 40) { f.taken = true; p1.lvl++; p1.hp += 20; sp("Фрукт силы! Лвл "+p1.lvl); }
-    });
-    // Атака босса
-    if(!p1.dead && Math.hypot(p1.x-animeBoss.x, p1.y-animeBoss.y) < 80 && t%30 === 0) {
-        animeBoss.hp -= p1.lvl * 5; sp("Удар по боссу!");
-        // Босс бьет в ответ
-        p1.hp -= 10;
-        if(p1.hp <= 0) p1.dead = true;
-    }
-    if(animeBoss.hp <= 0) { showMsg(i18n[currentLang].win[0]); }
-    checkDead();
-}
-function d20() {
-    x.fillStyle='#1a1a2e'; x.fillRect(0,0,W,H);
-    devilFruits.forEach(f => { if(!f.taken) { x.font='40px Arial'; x.textAlign='center'; x.fillText('🍈', f.x, f.y); } });
-    // Босс
-    x.font='80px Arial'; x.textAlign='center'; x.fillText('🦑', animeBoss.x, animeBoss.y);
-    x.fillStyle='#e74c3c'; x.fillRect(animeBoss.x-60, animeBoss.y-80, 120, 10);
-    x.fillStyle='#2ecc71'; x.fillRect(animeBoss.x-60, animeBoss.y-80, 120 * (animeBoss.hp/animeBoss.maxHp), 10);
-    // Игрок
-    x.fillStyle='#fff'; x.font='bold 20px Arial'; x.textAlign='left'; x.fillText('Lvl: ' + p1.lvl + ' | HP: ' + p1.hp, 20, 80);
-}
+function u20() { if(t===1) sp(i18n[currentLang].msgs[19]); devilFruits.forEach(f => { if(!f.taken && !p1.dead && Math.hypot(p1.x-f.x, p1.y-f.y) < 40) { f.taken = true; p1.lvl++; p1.hp += 20; sp("Фрукт силы! Лвл "+p1.lvl); } }); if(!p1.dead && Math.hypot(p1.x-animeBoss.x, p1.y-animeBoss.y) < 80 && t%30 === 0) { animeBoss.hp -= p1.lvl * 5; sp("Удар по боссу!"); p1.hp -= 10; if(p1.hp <= 0) p1.dead = true; } if(animeBoss.hp <= 0) { showMsg(i18n[currentLang].win[0]); } checkDead(); }
+function d20() { x.fillStyle='#1a1a2e'; x.fillRect(0,0,W,H); devilFruits.forEach(f => { if(!f.taken) { x.font='40px Arial'; x.textAlign='center'; x.fillText('🍈', f.x, f.y); } }); x.font='80px Arial'; x.textAlign='center'; x.fillText('🦑', animeBoss.x, animeBoss.y); x.fillStyle='#e74c3c'; x.fillRect(animeBoss.x-60, animeBoss.y-80, 120, 10); x.fillStyle='#2ecc71'; x.fillRect(animeBoss.x-60, animeBoss.y-80, 120 * (animeBoss.hp/animeBoss.maxHp), 10); x.fillStyle='#fff'; x.font='bold 20px Arial'; x.textAlign='left'; x.fillText('Lvl: ' + p1.lvl + ' | HP: ' + p1.hp, 20, 80); }
 
-// 21: Арена Шар (Отбивание)
-let arenaBall={};
+// === НОВАЯ ИГРА 21: Космо Дрон ===
+let droneCrystals=[], droneBullets=[], droneUfos=[], droneSpawnTimer=0;
 function u21() {
     if(t===1) sp(i18n[currentLang].msgs[20]);
-    // Шар летит к игроку
-    let a = Math.atan2(p1.y - arenaBall.y, p1.x - arenaBall.x);
-    arenaBall.vx = Math.cos(a) * 4; arenaBall.vy = Math.sin(a) * 4;
-    arenaBall.x += arenaBall.vx; arenaBall.y += arenaBall.vy;
-    // Рывок (суперспособность)
-    if(j1.active && p1.boost === 0) { p1.boost = 30; sp("Рывок!"); }
-    // Отбивание
-    if(!p1.dead && Math.hypot(p1.x-arenaBall.x, p1.y-arenaBall.y) < 50) {
-        if(p1.boost > 0) { // Если есть буст - отбиваем
-            arenaBall.x -= arenaBall.vx * 5; arenaBall.y -= arenaBall.vy * 5;
-            p1.score++; sp("Отбил!");
-        } else { // Если нет буста - урон
-            p1.hp -= 20;
-            if(p1.hp <= 0) p1.dead = true;
-        }
+    p1.x += p1.vx; p1.y += p1.vy;
+    if(p1.x < 20) p1.x = 20; if(p1.x > W-20) p1.x = W-20; if(p1.y < 20) p1.y = 20; if(p1.y > H-20) p1.y = H-20;
+    
+    if(t%30 === 0 && droneCrystals.length < 5) droneCrystals.push({x:Math.random()*W, y:Math.random()*H});
+    if(t%50 === 0) droneUfos.push({x:Math.random()<0.5?0:W, y:Math.random()*H, hp:2});
+    
+    // Стрельба
+    if(t%15 === 0) {
+        let target = null, minDist = 400;
+        droneUfos.forEach(u => { let d = Math.hypot(u.x-p1.x, u.y-p1.y); if(d < minDist){ minDist = d; target = u; } });
+        if(target) { let a = Math.atan2(target.y-p1.y, target.x-p1.x); droneBullets.push({x:p1.x, y:p1.y, vx:Math.cos(a)*10, vy:Math.sin(a)*10}); }
     }
+    
+    droneBullets.forEach(b => { b.x += b.vx; b.y += b.vy; if(b.x<0||b.x>W||b.y<0||b.y>H) droneBullets.splice(droneBullets.indexOf(b),1); });
+    
+    droneCrystals.forEach(cr => {
+        if(!p1.dead && Math.hypot(p1.x-cr.x, p1.y-cr.y) < 40) { droneCrystals.splice(droneCrystals.indexOf(cr),1); p1.score++; sp("Кристалл!"); }
+    });
+    
+    droneUfos.forEach(u => {
+        u.x += (p1.x - u.x) * 0.02; u.y += (p1.y - u.y) * 0.02;
+        if(!p1.dead && Math.hypot(p1.x-u.x, p1.y-u.y) < 50) { p1.dead = true; sp("Взрыв!"); }
+        droneBullets.forEach(b => {
+            if(Math.hypot(u.x-b.x, u.y-b.y) < 30) { u.hp--; droneBullets.splice(droneBullets.indexOf(b),1); if(u.hp<=0){ droneUfos.splice(droneUfos.indexOf(u),1); p1.score+=5; } }
+        });
+    });
     checkDead();
 }
 function d21() {
-    x.fillStyle='#2c3e50'; x.fillRect(0,0,W,H);
-    x.strokeStyle='#f1c40f'; x.lineWidth=5; x.beginPath(); x.arc(W/2, H/2, Math.min(W,H)/3, 0, 2*Math.PI); x.stroke();
-    x.fillStyle='#e74c3c'; x.beginPath(); x.arc(arenaBall.x, arenaBall.y, 20, 0, 2*Math.PI); x.fill();
-    x.fillStyle='#fff'; x.font='bold 20px Arial'; x.textAlign='left'; x.fillText('HP: ' + p1.hp + ' | Score: ' + p1.score, 20, 80);
-}
-
-// 22: RPG Арена (Волны врагов)
-let rpgEnemies=[], rpgSpawnTimer=0, rpgWave=1;
-function u22() {
-    if(t===1) sp(i18n[currentLang].msgs[21]);
-    rpgSpawnTimer++;
-    if(rpgSpawnTimer > 300) { rpgWave++; rpgSpawnTimer = 0; sp("Волна " + rpgWave + "!"); }
-    if(t % (60 - rpgWave) === 0 && rpgEnemies.length < 5 + rpgWave) { rpgEnemies.push({x:Math.random()<0.5?0:W, y:Math.random()*H, hp:10+rpgWave*5, maxHp:10+rpgWave*5}); }
+    x.fillStyle='#000000'; x.fillRect(0,0,W,H);
+    // Звезды
+    x.fillStyle='#fff'; for(let i=0; i<50; i++) { x.fillRect((i*100 - t*2%100)%W, i*50, 2, 2); }
     
-    rpgEnemies.forEach(e => {
-        e.x += (p1.x - e.x) * 0.01; e.y += (p1.y - e.y) * 0.01;
-        // Атака игрока
-        if(!p1.dead && Math.hypot(p1.x-e.x, p1.y-e.y) < 60 && t%20 === 0) {
-            e.hp -= 5 + p1.lvl * 2;
-            if(e.hp <= 0) { rpgEnemies.splice(rpgEnemies.indexOf(e),1); p1.score++; p1.lvl++; p1.hp += 10; sp("Уровень повышен!"); }
-        }
-        // Враг атакует
-        if(!p1.dead && Math.hypot(p1.x-e.x, p1.y-e.y) < 50 && t%30 === 0) {
-            p1.hp -= 5;
-            if(p1.hp <= 0) p1.dead = true;
-        }
-    });
-    checkDead();
-}
-function d22() {
-    x.fillStyle='#1a1a2e'; x.fillRect(0,0,W,H);
-    x.strokeStyle='#e74c3c'; x.lineWidth=5; x.beginPath(); x.arc(W/2, H/2, Math.min(W,H)/3, 0, 2*Math.PI); x.stroke();
-    rpgEnemies.forEach(e => { x.font='40px Arial'; x.textAlign='center'; x.fillText('👾', e.x, e.y); x.fillStyle='#e74c3c'; x.fillRect(e.x-20, e.y-30, 40 * (e.hp/e.maxHp), 5); });
-    x.fillStyle='#fff'; x.font='bold 20px Arial'; x.textAlign='left'; x.fillText('Lvl: ' + p1.lvl + ' | HP: ' + p1.hp + ' | Wave: ' + rpgWave, 20, 80);
+    x.fillStyle='#00c6ff'; droneCrystals.forEach(cr => { x.beginPath(); x.arc(cr.x, cr.y, 10, 0, 2*Math.PI); x.fill(); });
+    
+    x.fillStyle='#fff'; droneBullets.forEach(b => { x.beginPath(); x.arc(b.x, b.y, 4, 0, 2*Math.PI); x.fill(); });
+    
+    x.font='40px Arial'; x.textAlign='center'; droneUfos.forEach(u => { x.fillText('🛸', u.x, u.y); });
+    
+    // Рисуем дрон (корабль)
+    x.save(); x.translate(p1.x, p1.y);
+    if(p1.vx !== 0 || p1.vy !== 0) x.rotate(Math.atan2(p1.vy, p1.vx));
+    x.fillStyle='#3498db'; x.beginPath(); x.moveTo(20, 0); x.lineTo(-15, -15); x.lineTo(-15, 15); x.fill();
+    x.fillStyle='#f1c40f'; x.beginPath(); x.arc(0, 0, 5, 0, 2*Math.PI); x.fill();
+    x.restore();
+    
+    x.fillStyle='#fff'; x.font='bold 20px Arial'; x.textAlign='left'; x.fillText('Score: ' + p1.score, 20, 80);
 }
 
-// 23: Полоса Препятствий (Рандомная)
-let obstacles=[], obstacleTime=0;
-function genObstacles() { obstacles = []; for(let i=0; i<20; i++) obstacles.push({x:i*200, y:Math.random()*H, type:Math.random()>0.5?'spike':'block'}); }
+let rpgEnemies=[], rpgSpawnTimer=0, rpgWave=1;
+function u22() { if(t===1) sp(i18n[currentLang].msgs[21]); rpgSpawnTimer++; if(rpgSpawnTimer > 300) { rpgWave++; rpgSpawnTimer = 0; sp("Волна " + rpgWave + "!"); } if(t % (60 - rpgWave) === 0 && rpgEnemies.length < 5 + rpgWave) { rpgEnemies.push({x:Math.random()<0.5?0:W, y:Math.random()*H, hp:10+rpgWave*5, maxHp:10+rpgWave*5}); } rpgEnemies.forEach(e => { e.x += (p1.x - e.x) * 0.01; e.y += (p1.y - e.y) * 0.01; if(!p1.dead && Math.hypot(p1.x-e.x, p1.y-e.y) < 60 && t%20 === 0) { e.hp -= 5 + p1.lvl * 2; if(e.hp <= 0) { rpgEnemies.splice(rpgEnemies.indexOf(e),1); p1.score++; p1.lvl++; p1.hp += 10; sp("Уровень повышен!"); } } if(!p1.dead && Math.hypot(p1.x-e.x, p1.y-e.y) < 50 && t%30 === 0) { p1.hp -= 5; if(p1.hp <= 0) p1.dead = true; } }); checkDead(); }
+function d22() { x.fillStyle='#1a1a2e'; x.fillRect(0,0,W,H); x.strokeStyle='#e74c3c'; x.lineWidth=5; x.beginPath(); x.arc(W/2, H/2, Math.min(W,H)/3, 0, 2*Math.PI); x.stroke(); rpgEnemies.forEach(e => { x.font='40px Arial'; x.textAlign='center'; x.fillText('👾', e.x, e.y); x.fillStyle='#e74c3c'; x.fillRect(e.x-20, e.y-30, 40 * (e.hp/e.maxHp), 5); }); x.fillStyle='#fff'; x.font='bold 20px Arial'; x.textAlign='left'; x.fillText('Lvl: ' + p1.lvl + ' | HP: ' + p1.hp + ' | Wave: ' + rpgWave, 20, 80); }
+
+// === НОВАЯ ИГРА 23: Грибной Сбор ===
+let mushrooms=[], shroomMonsters=[], shroomSpawnTimer=0, shroomTimer=0;
 function u23() {
     if(t===1) sp(i18n[currentLang].msgs[22]);
-    obstacleTime += 1/60; // Таймер
-    p1.vy += 0.5; p2.vy += 0.5; p1.y += p1.vy; p2.y += p2.vy;
-    obstacles.forEach(o => {
-        o.x -= 3; // Движение препятствий
-        if(o.type === 'block') {
-            if(p1.x > o.x-20 && p1.x < o.x+20 && p1.y > o.y-20 && p1.y < o.y+20) { p1.y = o.y-20; p1.vy = 0; }
-            if(gMode===2 && p2.x > o.x-20 && p2.x < o.x+20 && p2.y > o.y-20 && p2.y < o.y+20) { p2.y = o.y-20; p2.vy = 0; }
-        } else if(o.type === 'spike') {
-            if(!p1.dead && Math.hypot(p1.x-o.x, p1.y-o.y) < 30) { p1.dead = true; sp("Ой!"); }
-            if(gMode===2 && !p2.dead && Math.hypot(p2.x-o.x, p2.y-o.y) < 30) { p2.dead = true; sp("Ой!"); }
-        }
+    shroomTimer++;
+    if(t%40 === 0 && mushrooms.length < 5) mushrooms.push({x:Math.random()*W, y:Math.random()*H});
+    shroomSpawnTimer++;
+    if(shroomSpawnTimer > 100) { shroomMonsters.push({x:Math.random()<0.5?0:W, y:Math.random()*H}); shroomSpawnTimer = 0; }
+    
+    mushrooms.forEach(m => {
+        if(!p1.dead && Math.hypot(p1.x-m.x, p1.y-m.y) < 40) { mushrooms.splice(mushrooms.indexOf(m),1); p1.score++; sp("Гриб!"); }
     });
-    if(obstacles[obstacles.length-1].x < 0) { showMsg(i18n[currentLang].win[0]); }
-    if(obstacleTime > 60) { showMsg(i18n[currentLang].lose); }
+    
+    shroomMonsters.forEach(m => {
+        m.x += (p1.x - m.x) * 0.01; m.y += (p1.y - m.y) * 0.01;
+        if(!p1.dead && Math.hypot(p1.x-m.x, p1.y-m.y) < 40) { p1.dead = true; sp("Поймали!"); }
+    });
+    
+    if(shroomTimer > 1800) { showMsg(i18n[currentLang].win[3]); } // Выжил 30 сек
     checkDead();
 }
 function d23() {
-    x.fillStyle='#87CEEB'; x.fillRect(0,0,W,H);
-    x.fillStyle='#7f8c8d'; x.fillRect(0, H-50, W, 50); // Земля
-    obstacles.forEach(o => {
-        if(o.type === 'block') { x.fillStyle='#7f8c8d'; x.fillRect(o.x-20, o.y-20, 40, 40); }
-        else { x.fillStyle='#e74c3c'; x.beginPath(); x.moveTo(o.x, o.y-20); x.lineTo(o.x-15, o.y+10); x.lineTo(o.x+15, o.y+10); x.fill(); }
-    });
-    x.fillStyle='#000'; x.font='bold 20px Arial'; x.textAlign='center'; x.fillText('Время: ' + Math.floor(60-obstacleTime) + 'с', W/2, 50);
+    // Жуткий лес
+    let g = x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#1a1a1a'); g.addColorStop(1,'#0d1f0d');
+    x.fillStyle = g; x.fillRect(0,0,W,H);
+    
+    // Туман
+    x.fillStyle = 'rgba(46, 204, 113, 0.1)'; x.fillRect(0,0,W,H);
+    
+    // Грибы
+    mushrooms.forEach(m => { x.font='40px Arial'; x.textAlign='center'; x.fillText('🍄', m.x, m.y); });
+    
+    // Монстры
+    shroomMonsters.forEach(m => { x.font='50px Arial'; x.textAlign='center'; x.fillText('👹', m.x, m.y); });
+    
+    x.fillStyle='#fff'; x.font='bold 20px Arial'; x.textAlign='left'; x.fillText('Грибы: ' + p1.score + ' | Время: ' + Math.floor(30 - shroomTimer/60) + 'с', 20, 80);
 }
+
+let lightOrbs=[], dayTime=1.0;
+function u24() { if(t===1) sp(i18n[currentLang].msgs[23]); dayTime -= 0.0002; if(dayTime <= 0) { showMsg("Ночь наступила!"); return; } if(t%40 === 0 && lightOrbs.length < 10) lightOrbs.push({x:Math.random()*W, y:Math.random()*H}); lightOrbs.forEach(o => { if(!p1.dead && Math.hypot(p1.x-o.x, p1.y-o.y) < 40) { lightOrbs.splice(lightOrbs.indexOf(o),1); dayTime += 0.05; p1.score++; sp("Свет!"); } }); }
+function d24() { let r = Math.floor(255 * (1-dayTime)), g = Math.floor(255 * dayTime), b = Math.floor(150 * dayTime); x.fillStyle = `rgb(${r},${g},${b})`; x.fillRect(0,0,W,H); x.fillStyle = `rgba(255, 255, 0, ${dayTime})`; x.beginPath(); x.arc(W-100, 100, 50, 0, 2*Math.PI); x.fill(); lightOrbs.forEach(o => { x.fillStyle='rgba(255,255,100,0.8)'; x.beginPath(); x.arc(o.x, o.y, 15, 0, 2*Math.PI); x.fill(); }); x.fillStyle = '#fff'; x.font='bold 20px Arial'; x.textAlign='left'; x.fillText('Свет: ' + Math.floor(dayTime*100) + '%', 20, 80); }
+let rhythmNotes=[], rhythmSpawnTimer=0, rhythmScore=0, rhythmHealth=100;
+function u25() { if(t===1) sp(i18n[currentLang].msgs[24]); rhythmSpawnTimer++; if(rhythmSpawnTimer > 40) { rhythmNotes.push({lane:Math.floor(Math.random()*4), y:0}); rhythmSpawnTimer = 0; } rhythmNotes.forEach(n => { n.y += 6; if(n.y > H) { rhythmNotes.splice(rhythmNotes.indexOf(n),1); rhythmHealth -= 10; if(rhythmHealth<=0) showMsg(i18n[currentLang].lose); } }); }
+function rhythmHit(lane) { let hit = false; rhythmNotes.forEach(n => { if(n.lane === lane && n.y > H-150 && n.y < H-50) { rhythmNotes.splice(rhythmNotes.indexOf(n),1); rhythmScore++; p1.score++; sp("Бум!"); hit = true; } }); if(!hit) { rhythmHealth -= 5; if(rhythmHealth<=0) showMsg(i18n[currentLang].lose); } }
+function d25() { x.fillStyle='#1a1a2e'; x.fillRect(0,0,W,H); let lw = W/4; for(let i=0; i<4; i++) { x.strokeStyle='rgba(255,255,255,0.2)'; x.lineWidth=2; x.beginPath(); x.moveTo(i*lw, 0); x.lineTo(i*lw, H); x.stroke(); } x.strokeStyle='#f1c40f'; x.lineWidth=5; x.beginPath(); x.moveTo(0, H-100); x.lineTo(W, H-100); x.stroke(); rhythmNotes.forEach(n => { x.fillStyle=['#e74c3c','#f1c40f','#2ecc71','#3498db'][n.lane]; x.beginPath(); x.arc(n.lane*lw + lw/2, n.y, 30, 0, 2*Math.PI); x.fill(); }); x.fillStyle='#fff'; x.font='bold 20px Arial'; x.textAlign='left'; x.fillText('Score: ' + rhythmScore + ' | HP: ' + rhythmHealth, 20, 80); }
+let neuroAst=[], neuroCryst=[], neuroScroll=0;
+function u26() { if(t===1) sp(i18n[currentLang].msgs[25]); neuroScroll += 2; if(t%30 === 0) neuroAst.push({x:W+50, y:Math.random()*H, r:Math.random()*30+20}); if(t%100 === 0) neuroCryst.push({x:W+50, y:Math.random()*H}); neuroAst.forEach(a => { a.x -= 5; if(!p1.dead && Math.hypot(p1.x-a.x, p1.y-a.y) < a.r) { p1.dead = true; sp("Бум!"); } if(a.x < -100) neuroAst.splice(neuroAst.indexOf(a),1); }); neuroCryst.forEach(cr => { cr.x -= 5; if(!p1.dead && Math.hypot(p1.x-cr.x, p1.y-cr.y) < 30) { neuroCryst.splice(neuroCryst.indexOf(cr),1); p1.score++; sp("Кристалл!"); } if(cr.x < -100) neuroCryst.splice(neuroCryst.indexOf(cr),1); }); checkDead(); }
+function d26() { x.fillStyle='#0f0c29'; x.fillRect(0,0,W,H); x.fillStyle='#fff'; for(let i=0; i<50; i++) { x.fillRect((i*100 - neuroScroll%100)%W, i*50, 2, 2); } neuroAst.forEach(a => { x.fillStyle='#7f8c8d'; x.beginPath(); x.arc(a.x, a.y, a.r, 0, 2*Math.PI); x.fill(); }); neuroCryst.forEach(cr => { x.fillStyle='#00c6ff'; x.beginPath(); x.arc(cr.x, cr.y, 15, 0, 2*Math.PI); x.fill(); }); x.fillStyle='#fff'; x.font='bold 20px Arial'; x.textAlign='left'; x.fillText('Score: ' + p1.score, 20, 80); }
 
 initEditor();
 loop();
